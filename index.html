@@ -7,7 +7,6 @@
 
     <!-- ===== CSS ===== -->
     <style>
-        /* ----- RESET & GLOBAL ----- */
         *,
         *::before,
         *::after {
@@ -26,7 +25,6 @@
             flex-direction: column;
         }
 
-        /* ----- SCROLLBAR ----- */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -41,7 +39,6 @@
             background: #555;
         }
 
-        /* ----- APP LAYOUT ----- */
         .app {
             display: flex;
             flex: 1;
@@ -50,7 +47,6 @@
             padding: 8px 8px 0 8px;
         }
 
-        /* ----- SIDEBAR ----- */
         .sidebar {
             width: 240px;
             min-width: 200px;
@@ -132,7 +128,6 @@
             margin: 4px 0;
         }
 
-        /* ----- MAIN CONTENT ----- */
         .main {
             flex: 1;
             background: #121212;
@@ -144,7 +139,6 @@
             gap: 20px;
         }
 
-        /* Search Bar */
         .search-bar {
             position: relative;
             width: 100%;
@@ -177,7 +171,6 @@
             font-size: 18px;
         }
 
-        /* Grid Music */
         .grid-header {
             display: flex;
             justify-content: space-between;
@@ -199,7 +192,6 @@
             padding: 4px 0 20px 0;
         }
 
-        /* ----- MUSIC CARD ----- */
         .music-card {
             background: #181818;
             border-radius: 8px;
@@ -245,7 +237,6 @@
             white-space: nowrap;
         }
 
-        /* Tombol hapus (muncul saat hover) */
         .music-card .delete-btn {
             position: absolute;
             top: 12px;
@@ -272,7 +263,6 @@
             transform: scale(1.1);
         }
 
-        /* ----- SKELETON LOADING ----- */
         .skeleton-card {
             background: #181818;
             border-radius: 8px;
@@ -314,7 +304,6 @@
             }
         }
 
-        /* ----- BOTTOM PLAYER ----- */
         .player {
             background: #181818;
             border-top: 1px solid #282828;
@@ -424,9 +413,6 @@
             width: 0%;
             transition: width 0.1s linear;
         }
-        .player-progress .progress-bar .progress-fill:hover {
-            background: #1ed760;
-        }
 
         .player-volume {
             min-width: 120px;
@@ -452,7 +438,6 @@
             cursor: pointer;
         }
 
-        /* ----- MODAL ----- */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -560,7 +545,6 @@
             cursor: not-allowed;
         }
 
-        /* ----- RESPONSIVE ----- */
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -586,7 +570,6 @@
             }
         }
 
-        /* YouTube iframe disembunyikan */
         #youtube-player {
             position: fixed;
             bottom: -9999px;
@@ -597,7 +580,6 @@
             pointer-events: none;
         }
 
-        /* Toast notification */
         .toast {
             position: fixed;
             bottom: 100px;
@@ -631,18 +613,13 @@
 
     <!-- ===== APP ===== -->
     <div class="app">
-
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="logo">
                 <span class="icon">🎵</span>
                 <span>Music Tracker</span>
             </div>
-
             <button class="sidebar-btn" id="openAddModal">➕ Add Song</button>
-
             <hr class="sidebar-divider" />
-
             <div class="sidebar-menu">
                 <div class="sidebar-menu-item active">🏠 Home</div>
                 <div class="sidebar-menu-item">❤️ Favorites</div>
@@ -650,21 +627,16 @@
             </div>
         </aside>
 
-        <!-- MAIN -->
         <main class="main">
             <div class="search-bar">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="searchInput" placeholder="Cari lagu..." />
             </div>
-
             <div class="grid-header">
                 <h2>Library</h2>
                 <span class="count" id="trackCount">0 lagu</span>
             </div>
-
-            <div class="music-grid" id="musicGrid">
-                <!-- Skeleton loading akan dirender oleh JS -->
-            </div>
+            <div class="music-grid" id="musicGrid"></div>
         </main>
     </div>
 
@@ -677,7 +649,6 @@
                 <span class="p-artist" id="playerArtist">-</span>
             </div>
         </div>
-
         <div class="player-controls">
             <div class="ctrl-buttons">
                 <button id="prevBtn" title="Mundur 5s">⏮</button>
@@ -692,14 +663,13 @@
                 <span class="time" id="totalTime">0:00</span>
             </div>
         </div>
-
         <div class="player-volume">
             <span>🔊</span>
             <input type="range" min="0" max="1" step="0.01" value="0.8" id="volumeControl" />
         </div>
     </footer>
 
-    <!-- ===== YOUTUBE IFRAME (tersembunyi) ===== -->
+    <!-- ===== YOUTUBE IFRAME ===== -->
     <div id="youtube-player"></div>
 
     <!-- ===== MODAL ===== -->
@@ -707,27 +677,22 @@
         <div class="modal">
             <h2>🎵 Tambah Lagu</h2>
             <p class="sub">Tempel link YouTube, sisanya akan otomatis terisi.</p>
-
             <div class="form-group">
                 <label>🔗 Link YouTube</label>
                 <input type="url" id="inputYoutube" placeholder="https://youtube.com/watch?v=..." />
             </div>
-
             <div class="form-group">
                 <label>🎨 Cover URL</label>
                 <input type="url" id="inputCover" placeholder="Otomatis terisi..." disabled />
             </div>
-
             <div class="form-group">
                 <label>🎤 Judul Lagu</label>
                 <input type="text" id="inputTitle" placeholder="Otomatis terisi..." disabled />
             </div>
-
             <div class="form-group">
                 <label>👤 Nama Artis</label>
                 <input type="text" id="inputArtist" placeholder="Otomatis terisi..." disabled />
             </div>
-
             <div class="modal-actions">
                 <button class="btn-cancel" id="cancelModal">Batal</button>
                 <button class="btn-submit" id="submitModal">Tambah</button>
@@ -743,50 +708,47 @@
         // ============================================
         // KONFIGURASI - GANTI DENGAN URL APPS SCRIPT ANDA
         // ============================================
-        const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzuoJmyaAyOnsEGk83zMiNCH1cgo1TcxXNOXlFrTDBVdKttPW4UjYKAMnzZc8ALbAzcCg/exec';
+        var GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzk05CpuqXnFyOkIkpFpkYghv0w_GI8TdjnueyLiPLZZ_h2EcGcsfXHZO4BbUqwDSFM2A/exec';
         // ============================================
 
         // ----- STATE -----
-        let tracks = [];
-        let currentTrack = null;
-        let player = null;
-        let isPlaying = false;
-        let playerInterval = null;
-        let isSeeking = false;
-        let searchQuery = '';
+        var tracks = [];
+        var currentTrack = null;
+        var player = null;
+        var isPlaying = false;
+        var playerInterval = null;
+        var isSeeking = false;
+        var searchQuery = '';
 
         // ----- DOM REFS -----
-        const grid = document.getElementById('musicGrid');
-        const searchInput = document.getElementById('searchInput');
-        const trackCount = document.getElementById('trackCount');
-
-        const playerCover = document.getElementById('playerCover');
-        const playerTitle = document.getElementById('playerTitle');
-        const playerArtist = document.getElementById('playerArtist');
-        const playBtn = document.getElementById('playBtn');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const progressFill = document.getElementById('progressFill');
-        const currentTimeEl = document.getElementById('currentTime');
-        const totalTimeEl = document.getElementById('totalTime');
-        const progressBar = document.getElementById('progressBar');
-        const volumeControl = document.getElementById('volumeControl');
-
-        const modalOverlay = document.getElementById('modalOverlay');
-        const openModalBtn = document.getElementById('openAddModal');
-        const cancelModalBtn = document.getElementById('cancelModal');
-        const submitModalBtn = document.getElementById('submitModal');
-        const inputYoutube = document.getElementById('inputYoutube');
-        const inputCover = document.getElementById('inputCover');
-        const inputTitle = document.getElementById('inputTitle');
-        const inputArtist = document.getElementById('inputArtist');
-
-        const toast = document.getElementById('toast');
+        var grid = document.getElementById('musicGrid');
+        var searchInput = document.getElementById('searchInput');
+        var trackCount = document.getElementById('trackCount');
+        var playerCover = document.getElementById('playerCover');
+        var playerTitle = document.getElementById('playerTitle');
+        var playerArtist = document.getElementById('playerArtist');
+        var playBtn = document.getElementById('playBtn');
+        var prevBtn = document.getElementById('prevBtn');
+        var nextBtn = document.getElementById('nextBtn');
+        var progressFill = document.getElementById('progressFill');
+        var currentTimeEl = document.getElementById('currentTime');
+        var totalTimeEl = document.getElementById('totalTime');
+        var progressBar = document.getElementById('progressBar');
+        var volumeControl = document.getElementById('volumeControl');
+        var modalOverlay = document.getElementById('modalOverlay');
+        var openModalBtn = document.getElementById('openAddModal');
+        var cancelModalBtn = document.getElementById('cancelModal');
+        var submitModalBtn = document.getElementById('submitModal');
+        var inputYoutube = document.getElementById('inputYoutube');
+        var inputCover = document.getElementById('inputCover');
+        var inputTitle = document.getElementById('inputTitle');
+        var inputArtist = document.getElementById('inputArtist');
+        var toast = document.getElementById('toast');
 
         // ============================================
         // TOAST NOTIFICATION
         // ============================================
-        let toastTimeout;
+        var toastTimeout;
 
         function showToast(message, type) {
             if (typeof type === 'undefined') type = 'success';
@@ -799,12 +761,17 @@
         }
 
         // ============================================
-        // 1. FETCH DATA
+        // 1. FETCH DATA - MENGGUNAKAN PROXY CORS
         // ============================================
         async function fetchTracks() {
             showSkeletons();
             try {
-                var res = await fetch(GOOGLE_SHEET_API_URL, {
+                // Gunakan proxy CORS gratis
+                var proxyUrl = 'https://api.allorigins.win/raw?url=';
+                var targetUrl = GOOGLE_SHEET_API_URL;
+                var fullUrl = proxyUrl + encodeURIComponent(targetUrl);
+
+                var res = await fetch(fullUrl, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json'
@@ -875,7 +842,6 @@
             }
             grid.innerHTML = html;
 
-            // Event: klik kartu = play
             var cards = document.querySelectorAll('.music-card');
             for (var j = 0; j < cards.length; j++) {
                 var el = cards[j];
@@ -893,7 +859,6 @@
                 });
             }
 
-            // Event: tombol hapus
             var deleteBtns = document.querySelectorAll('.delete-btn');
             for (var l = 0; l < deleteBtns.length; l++) {
                 var btn = deleteBtns[l];
@@ -905,7 +870,6 @@
             }
         }
 
-        // ----- SKELETON -----
         function showSkeletons() {
             var html = '';
             for (var i = 0; i < 8; i++) {
@@ -919,7 +883,7 @@
         }
 
         // ============================================
-        // 3. YOUTUBE PLAYER (IFRAME API)
+        // 3. YOUTUBE PLAYER
         // ============================================
         function loadYouTubeAPI() {
             if (document.getElementById('youtube-api-script')) return;
@@ -936,7 +900,6 @@
             ytReady = true;
             console.log('YouTube API siap!');
         }
-
         window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
         function createPlayer(videoId) {
@@ -1116,7 +1079,7 @@
         }
 
         // ============================================
-        // 6. MODAL - AUTOFILL & SUBMIT
+        // 6. MODAL - AUTOFILL & SUBMIT (Dengan no-cors)
         // ============================================
         var isSubmitting = false;
 
@@ -1144,7 +1107,6 @@
             submitModalBtn.textContent = 'Tambah';
         }
 
-        // Autofill saat paste atau input
         var autofillTimeout;
 
         inputYoutube.addEventListener('input', function() {
@@ -1186,7 +1148,6 @@
             }, 500);
         });
 
-        // Submit
         submitModalBtn.addEventListener('click', async function() {
             if (isSubmitting) return;
 
@@ -1206,7 +1167,6 @@
                 return;
             }
 
-            // Cek duplikasi
             var exists = false;
             for (var m = 0; m < tracks.length; m++) {
                 var existingId = extractVideoId(tracks[m].YoutubeUrl);
@@ -1235,29 +1195,23 @@
                     }
                 };
 
-                var res = await fetch(GOOGLE_SHEET_API_URL, {
+                // Gunakan mode: 'no-cors' untuk POST
+                await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status + ': ' + res.statusText);
-                }
+                showToast('✅ Lagu berhasil ditambahkan!', 'success');
+                closeModal();
+                // Tunggu sebentar lalu refresh data
+                setTimeout(function() {
+                    fetchTracks();
+                }, 1000);
 
-                var json = await res.json();
-                console.log('Add response:', json);
-
-                if (json.success) {
-                    showToast('✅ Lagu berhasil ditambahkan!', 'success');
-                    closeModal();
-                    await fetchTracks();
-                } else {
-                    showToast('❌ Gagal: ' + (json.error || 'Unknown error'), 'error');
-                }
             } catch (err) {
                 console.error('Submit error:', err);
                 showToast('❌ Gagal menambahkan lagu. Coba lagi.', 'error');
@@ -1269,7 +1223,7 @@
         });
 
         // ============================================
-        // 7. DELETE TRACK
+        // 7. DELETE TRACK (Dengan no-cors)
         // ============================================
         async function deleteTrack(id) {
             if (!confirm('Yakin ingin menghapus lagu ini?')) return;
@@ -1280,47 +1234,37 @@
                     id: id
                 };
 
-                var res = await fetch(GOOGLE_SHEET_API_URL, {
+                await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
+                    mode: 'no-cors',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status + ': ' + res.statusText);
+                showToast('🗑️ Lagu berhasil dihapus', 'success');
+                var newTracks = [];
+                for (var n = 0; n < tracks.length; n++) {
+                    if (tracks[n].ID !== id) {
+                        newTracks.push(tracks[n]);
+                    }
+                }
+                tracks = newTracks;
+                renderTracks();
+
+                if (currentTrack && currentTrack.ID === id) {
+                    currentTrack = null;
+                    playerCover.src = '';
+                    playerTitle.textContent = 'Pilih lagu';
+                    playerArtist.textContent = '-';
+                    if (player) {
+                        player.pauseVideo();
+                        isPlaying = false;
+                        playBtn.textContent = '▶';
+                    }
                 }
 
-                var json = await res.json();
-                console.log('Delete response:', json);
-
-                if (json.success) {
-                    showToast('🗑️ Lagu berhasil dihapus', 'success');
-                    var newTracks = [];
-                    for (var n = 0; n < tracks.length; n++) {
-                        if (tracks[n].ID !== id) {
-                            newTracks.push(tracks[n]);
-                        }
-                    }
-                    tracks = newTracks;
-                    renderTracks();
-
-                    if (currentTrack && currentTrack.ID === id) {
-                        currentTrack = null;
-                        playerCover.src = '';
-                        playerTitle.textContent = 'Pilih lagu';
-                        playerArtist.textContent = '-';
-                        if (player) {
-                            player.pauseVideo();
-                            isPlaying = false;
-                            playBtn.textContent = '▶';
-                        }
-                    }
-                } else {
-                    showToast('❌ Gagal hapus: ' + (json.error || 'Unknown error'), 'error');
-                }
             } catch (err) {
                 console.error('Delete error:', err);
                 showToast('❌ Gagal menghapus lagu. Coba lagi.', 'error');
