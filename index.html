@@ -607,6 +607,20 @@
         .toast.success {
             border-left: 4px solid #1DB954;
         }
+
+        .btn-refresh {
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-refresh:hover {
+            background: #444;
+        }
     </style>
 </head>
 <body>
@@ -628,9 +642,12 @@
         </aside>
 
         <main class="main">
-            <div class="search-bar">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="Cari lagu..." />
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <div class="search-bar" style="flex:1; max-width:400px;">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Cari lagu..." />
+                </div>
+                <button class="btn-refresh" id="refreshBtn">🔄 Refresh</button>
             </div>
             <div class="grid-header">
                 <h2>Library</h2>
@@ -719,11 +736,13 @@
         var playerInterval = null;
         var isSeeking = false;
         var searchQuery = '';
+        var isLoading = false;
 
         // ----- DOM REFS -----
         var grid = document.getElementById('musicGrid');
         var searchInput = document.getElementById('searchInput');
         var trackCount = document.getElementById('trackCount');
+        var refreshBtn = document.getElementById('refreshBtn');
         var playerCover = document.getElementById('playerCover');
         var playerTitle = document.getElementById('playerTitle');
         var playerArtist = document.getElementById('playerArtist');
@@ -761,47 +780,77 @@
         }
 
         // ============================================
-        // 1. FETCH DATA - MENGGUNAKAN PROXY CORS
+        // 1. FETCH DATA - Dengan Fallback Proxy
         // ============================================
         async function fetchTracks() {
+            if (isLoading) return;
+            isLoading = true;
             showSkeletons();
-            try {
-                // Gunakan proxy CORS gratis
-                var proxyUrl = 'https://api.allorigins.win/raw?url=';
-                var targetUrl = GOOGLE_SHEET_API_URL;
-                var fullUrl = proxyUrl + encodeURIComponent(targetUrl);
 
-                var res = await fetch(fullUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json'
+            // Daftar proxy CORS gratis
+            var proxies = [
+                'https://api.allorigins.win/raw?url=',
+                'https://corsproxy.io/?',
+                'https://api.codetabs.com/v1/proxy?quest='
+            ];
+
+            var lastError = null;
+
+            for (var p = 0; p < proxies.length; p++) {
+                try {
+                    var proxyUrl = proxies[p];
+                    var targetUrl = GOOGLE_SHEET_API_URL;
+                    var fullUrl = proxyUrl + encodeURIComponent(targetUrl);
+
+                    console.log('Mencoba proxy:', proxyUrl);
+
+                    var controller = new AbortController();
+                    var timeoutId = setTimeout(function() {
+                        controller.abort();
+                    }, 10000);
+
+                    var res = await fetch(fullUrl, {
+                        method: 'GET',
+                        signal: controller.signal,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!res.ok) {
+                        throw new Error('HTTP ' + res.status + ': ' + res.statusText);
                     }
-                });
 
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status + ': ' + res.statusText);
-                }
+                    var json = await res.json();
+                    console.log('Response dari server:', json);
 
-                var json = await res.json();
-                console.log('Response dari server:', json);
-
-                if (json.success) {
-                    tracks = json.data || [];
-                    renderTracks();
-                    if (tracks.length === 0) {
-                        showToast('Library kosong, tambahkan lagu pertama!', 'success');
+                    if (json.success) {
+                        tracks = json.data || [];
+                        renderTracks();
+                        if (tracks.length === 0) {
+                            showToast('Library kosong, tambahkan lagu pertama!', 'success');
+                        }
+                        isLoading = false;
+                        return;
+                    } else {
+                        throw new Error(json.error || 'Gagal mengambil data');
                     }
-                } else {
-                    showToast('Error: ' + (json.error || 'Gagal mengambil data'), 'error');
-                    tracks = [];
-                    renderTracks();
+
+                } catch (err) {
+                    console.warn('Proxy ' + p + ' gagal:', err.message);
+                    lastError = err;
+                    // Lanjut ke proxy berikutnya
                 }
-            } catch (err) {
-                console.error('Fetch error:', err);
-                showToast('Gagal terhubung ke server. Coba refresh.', 'error');
-                tracks = [];
-                renderTracks();
             }
+
+            // Semua proxy gagal
+            console.error('Semua proxy gagal:', lastError);
+            showToast('Gagal mengambil data. Klik Refresh untuk mencoba lagi.', 'error');
+            tracks = [];
+            renderTracks();
+            isLoading = false;
         }
 
         // ============================================
@@ -1079,7 +1128,7 @@
         }
 
         // ============================================
-        // 6. MODAL - AUTOFILL & SUBMIT (Dengan no-cors)
+        // 6. MODAL - AUTOFILL & SUBMIT
         // ============================================
         var isSubmitting = false;
 
@@ -1195,7 +1244,6 @@
                     }
                 };
 
-                // Gunakan mode: 'no-cors' untuk POST
                 await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -1207,10 +1255,11 @@
 
                 showToast('✅ Lagu berhasil ditambahkan!', 'success');
                 closeModal();
-                // Tunggu sebentar lalu refresh data
+
+                // Refresh data setelah 1.5 detik
                 setTimeout(function() {
                     fetchTracks();
-                }, 1000);
+                }, 1500);
 
             } catch (err) {
                 console.error('Submit error:', err);
@@ -1223,7 +1272,7 @@
         });
 
         // ============================================
-        // 7. DELETE TRACK (Dengan no-cors)
+        // 7. DELETE TRACK
         // ============================================
         async function deleteTrack(id) {
             if (!confirm('Yakin ingin menghapus lagu ini?')) return;
@@ -1244,6 +1293,8 @@
                 });
 
                 showToast('🗑️ Lagu berhasil dihapus', 'success');
+
+                // Hapus dari state lokal
                 var newTracks = [];
                 for (var n = 0; n < tracks.length; n++) {
                     if (tracks[n].ID !== id) {
@@ -1264,6 +1315,11 @@
                         playBtn.textContent = '▶';
                     }
                 }
+
+                // Refresh ulang dari server
+                setTimeout(function() {
+                    fetchTracks();
+                }, 1000);
 
             } catch (err) {
                 console.error('Delete error:', err);
@@ -1303,6 +1359,10 @@
         prevBtn.addEventListener('click', seekBackward);
         nextBtn.addEventListener('click', seekForward);
 
+        refreshBtn.addEventListener('click', function() {
+            fetchTracks();
+        });
+
         volumeControl.addEventListener('input', function() {
             if (player) {
                 player.setVolume(volumeControl.value * 100);
@@ -1333,9 +1393,18 @@
         console.log('API URL:', GOOGLE_SHEET_API_URL);
 
         loadYouTubeAPI();
-        fetchTracks();
 
-        setInterval(fetchTracks, 30000);
+        // Coba fetch setelah API siap
+        setTimeout(function() {
+            fetchTracks();
+        }, 500);
+
+        // Refresh setiap 30 detik
+        setInterval(function() {
+            if (!isLoading) {
+                fetchTracks();
+            }
+        }, 30000);
 
         console.log('🎵 Music Tracker siap!');
     </script>
