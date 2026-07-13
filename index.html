@@ -596,6 +596,35 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #282828;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 2000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.error {
+            border-left: 4px solid #e91429;
+        }
+        .toast.success {
+            border-left: 4px solid #1DB954;
+        }
     </style>
 </head>
 <body>
@@ -706,12 +735,15 @@
         </div>
     </div>
 
+    <!-- ===== TOAST ===== -->
+    <div class="toast" id="toast"></div>
+
     <!-- ===== JAVASCRIPT ===== -->
     <script>
         // ============================================
         // KONFIGURASI - GANTI DENGAN URL APPS SCRIPT ANDA
         // ============================================
-        const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbycuCuCyaNixVvjPsoWKhWz_Y78rjb3aF5qxmHa5LiVfL-Kca4FzKSSC84KhyFuw6FlJg/exec';
+        const GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzuoJmyaAyOnsEGk83zMiNCH1cgo1TcxXNOXlFrTDBVdKttPW4UjYKAMnzZc8ALbAzcCg/exec';
         // ============================================
 
         // ----- STATE -----
@@ -749,25 +781,59 @@
         const inputTitle = document.getElementById('inputTitle');
         const inputArtist = document.getElementById('inputArtist');
 
+        const toast = document.getElementById('toast');
+
+        // ============================================
+        // TOAST NOTIFICATION
+        // ============================================
+        let toastTimeout;
+
+        function showToast(message, type = 'success') {
+            clearTimeout(toastTimeout);
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // ============================================
         // 1. FETCH DATA
         // ============================================
         async function fetchTracks() {
             showSkeletons();
             try {
-                const res = await fetch(GOOGLE_SHEET_API_URL);
+                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+
                 const json = await res.json();
+                console.log('Response dari server:', json);
+
                 if (json.success) {
                     tracks = json.data || [];
+                    renderTracks();
+                    if (tracks.length === 0) {
+                        showToast('Library kosong, tambahkan lagu pertama!', 'success');
+                    }
                 } else {
-                    console.error('Error:', json.error);
+                    showToast('Error: ' + (json.error || 'Gagal mengambil data'), 'error');
                     tracks = [];
+                    renderTracks();
                 }
             } catch (err) {
                 console.error('Fetch error:', err);
+                showToast('Gagal terhubung ke server. Coba refresh.', 'error');
                 tracks = [];
+                renderTracks();
             }
-            renderTracks();
         }
 
         // ============================================
@@ -784,8 +850,9 @@
             if (filtered.length === 0) {
                 grid.innerHTML = `
                     <div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">
-                        <p style="font-size:20px;">🎵</p>
-                        <p>Tidak ada lagu ditemukan</p>
+                        <p style="font-size:40px;">🎵</p>
+                        <p style="font-size:18px;margin-top:12px;">${searchQuery ? 'Tidak ada hasil untuk "' + searchQuery + '"' : 'Belum ada lagu. Yuk tambah!'}</p>
+                        <p style="font-size:14px;margin-top:4px;">${searchQuery ? 'Coba kata kunci lain' : 'Klik tombol Add Song di sidebar'}</p>
                     </div>
                 `;
                 return;
@@ -849,7 +916,7 @@
 
         function onYouTubeIframeAPIReady() {
             ytReady = true;
-            // Player dibuat saat track diputar
+            console.log('YouTube API siap!');
         }
 
         // Untuk global callback dari YouTube API
@@ -883,6 +950,7 @@
                 events: {
                     onReady: onPlayerReady,
                     onStateChange: onPlayerStateChange,
+                    onError: onPlayerError,
                 }
             });
         }
@@ -904,22 +972,32 @@
                 isPlaying = true;
                 playBtn.textContent = '⏸';
                 updateProgressLoop();
-            } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+            } else if (event.data === YT.PlayerState.PAUSED) {
                 isPlaying = false;
                 playBtn.textContent = '▶';
-                if (event.data === YT.PlayerState.ENDED) {
-                    // Reset progress
-                    progressFill.style.width = '0%';
-                    currentTimeEl.textContent = '0:00';
-                }
+            } else if (event.data === YT.PlayerState.ENDED) {
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                progressFill.style.width = '0%';
+                currentTimeEl.textContent = '0:00';
             }
         }
 
+        function onPlayerError(event) {
+            console.error('YouTube Player Error:', event.data);
+            showToast('Error memutar video. Coba lagu lain.', 'error');
+            isPlaying = false;
+            playBtn.textContent = '▶';
+        }
+
         function playTrack(track) {
-            if (!track || !track.YoutubeUrl) return;
+            if (!track || !track.YoutubeUrl) {
+                showToast('Link YouTube tidak valid!', 'error');
+                return;
+            }
             const videoId = extractVideoId(track.YoutubeUrl);
             if (!videoId) {
-                alert('Link YouTube tidak valid!');
+                showToast('Link YouTube tidak valid!', 'error');
                 return;
             }
 
@@ -942,7 +1020,14 @@
         // 4. PLAYER CONTROLS
         // ============================================
         function togglePlay() {
-            if (!player) return;
+            if (!player) {
+                if (tracks.length > 0) {
+                    playTrack(tracks[0]);
+                } else {
+                    showToast('Tidak ada lagu untuk diputar', 'error');
+                }
+                return;
+            }
             if (isPlaying) {
                 player.pauseVideo();
             } else {
@@ -952,14 +1037,18 @@
 
         function seekForward() {
             if (!player) return;
-            const current = player.getCurrentTime();
-            player.seekTo(Math.min(current + 5, player.getDuration()), true);
+            try {
+                const current = player.getCurrentTime();
+                player.seekTo(Math.min(current + 5, player.getDuration()), true);
+            } catch (e) { /* ignore */ }
         }
 
         function seekBackward() {
             if (!player) return;
-            const current = player.getCurrentTime();
-            player.seekTo(Math.max(current - 5, 0), true);
+            try {
+                const current = player.getCurrentTime();
+                player.seekTo(Math.max(current - 5, 0), true);
+            } catch (e) { /* ignore */ }
         }
 
         function updateProgressLoop() {
@@ -980,7 +1069,7 @@
         }
 
         function formatTime(seconds) {
-            if (!seconds || isNaN(seconds)) return '0:00';
+            if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '0:00';
             const m = Math.floor(seconds / 60);
             const s = Math.floor(seconds % 60);
             return m + ':' + (s < 10 ? '0' : '') + s;
@@ -991,8 +1080,9 @@
         // ============================================
         function extractVideoId(url) {
             if (!url) return null;
+            // Pattern untuk berbagai format YouTube
             const patterns = [
-                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/#]+)/,
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&?/#]+)/,
                 /youtube\.com\/watch\?.*v=([^&]+)/,
                 /youtu\.be\/([^?]+)/
             ];
@@ -1023,7 +1113,7 @@
             inputArtist.value = '';
             inputYoutube.disabled = false;
             submitModalBtn.disabled = false;
-            inputYoutube.focus();
+            setTimeout(() => inputYoutube.focus(), 100);
         });
 
         cancelModalBtn.addEventListener('click', closeModal);
@@ -1035,12 +1125,18 @@
         function closeModal() {
             modalOverlay.classList.remove('open');
             isSubmitting = false;
+            submitModalBtn.disabled = false;
+            submitModalBtn.textContent = 'Tambah';
         }
 
         // Autofill saat paste atau input
-        inputYoutube.addEventListener('input', async function() {
+        let autofillTimeout;
+
+        inputYoutube.addEventListener('input', function() {
+            clearTimeout(autofillTimeout);
             const url = this.value.trim();
             const videoId = extractVideoId(url);
+
             if (!videoId) {
                 inputCover.value = '';
                 inputTitle.value = '';
@@ -1051,24 +1147,29 @@
             // Set cover
             inputCover.value = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
-            // Fetch title via noembed
-            try {
-                const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-                const data = await res.json();
-                let title = data.title || '';
-                if (title.includes(' - ')) {
-                    const parts = title.split(' - ');
-                    inputArtist.value = parts[0].trim() || 'Unknown Artist';
-                    inputTitle.value = parts.slice(1).join(' - ').trim() || 'Untitled';
-                } else {
-                    inputTitle.value = title || 'Untitled';
+            // Fetch title via noembed dengan debounce
+            autofillTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+                    const data = await res.json();
+                    let title = data.title || '';
+
+                    if (title.includes(' - ')) {
+                        const parts = title.split(' - ');
+                        const artistPart = parts.slice(0, -1).join(' - ').trim();
+                        const titlePart = parts[parts.length - 1].trim();
+                        inputArtist.value = artistPart || 'Unknown Artist';
+                        inputTitle.value = titlePart || 'Untitled';
+                    } else {
+                        inputTitle.value = title || 'Untitled';
+                        inputArtist.value = 'Unknown Artist';
+                    }
+                } catch (err) {
+                    console.warn('Gagal fetch title:', err);
+                    inputTitle.value = 'Untitled';
                     inputArtist.value = 'Unknown Artist';
                 }
-            } catch (err) {
-                console.warn('Gagal fetch title:', err);
-                inputTitle.value = 'Untitled';
-                inputArtist.value = 'Unknown Artist';
-            }
+            }, 500);
         });
 
         // Submit
@@ -1081,13 +1182,13 @@
             const artist = inputArtist.value.trim() || 'Unknown Artist';
 
             if (!youtubeUrl) {
-                alert('Masukkan link YouTube terlebih dahulu!');
+                showToast('Masukkan link YouTube terlebih dahulu!', 'error');
                 return;
             }
 
             const videoId = extractVideoId(youtubeUrl);
             if (!videoId) {
-                alert('Link YouTube tidak valid!');
+                showToast('Link YouTube tidak valid!', 'error');
                 return;
             }
 
@@ -1097,7 +1198,7 @@
                 return existingId === videoId;
             });
             if (exists) {
-                alert('⚠️ Lagu ini sudah ada di library lo!');
+                showToast('⚠️ Lagu ini sudah ada di library lo!', 'error');
                 return;
             }
 
@@ -1118,20 +1219,30 @@
 
                 const res = await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
                     body: JSON.stringify(payload),
                 });
 
-                // Karena mode no-cors, response tidak bisa dibaca
-                // Tapi data sudah terkirim
-                alert('✅ Lagu berhasil ditambahkan!');
-                closeModal();
-                await fetchTracks();
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
 
+                const json = await res.json();
+                console.log('Add response:', json);
+
+                if (json.success) {
+                    showToast('✅ Lagu berhasil ditambahkan!', 'success');
+                    closeModal();
+                    await fetchTracks();
+                } else {
+                    showToast('❌ Gagal: ' + (json.error || 'Unknown error'), 'error');
+                }
             } catch (err) {
                 console.error('Submit error:', err);
-                alert('❌ Gagal menambahkan lagu. Coba lagi.');
+                showToast('❌ Gagal menambahkan lagu. Coba lagi.', 'error');
             } finally {
                 isSubmitting = false;
                 submitModalBtn.disabled = false;
@@ -1151,33 +1262,46 @@
                     id: id
                 };
 
-                await fetch(GOOGLE_SHEET_API_URL, {
+                const res = await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
                     body: JSON.stringify(payload),
                 });
 
-                // Hapus dari state lokal
-                tracks = tracks.filter(t => t.ID !== id);
-                renderTracks();
-
-                // Jika lagu yang sedang diputar dihapus
-                if (currentTrack && currentTrack.ID === id) {
-                    currentTrack = null;
-                    playerCover.src = '';
-                    playerTitle.textContent = 'Pilih lagu';
-                    playerArtist.textContent = '-';
-                    if (player) {
-                        player.pauseVideo();
-                        isPlaying = false;
-                        playBtn.textContent = '▶';
-                    }
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
                 }
 
+                const json = await res.json();
+                console.log('Delete response:', json);
+
+                if (json.success) {
+                    showToast('🗑️ Lagu berhasil dihapus', 'success');
+                    // Hapus dari state lokal
+                    tracks = tracks.filter(t => t.ID !== id);
+                    renderTracks();
+
+                    // Jika lagu yang sedang diputar dihapus
+                    if (currentTrack && currentTrack.ID === id) {
+                        currentTrack = null;
+                        playerCover.src = '';
+                        playerTitle.textContent = 'Pilih lagu';
+                        playerArtist.textContent = '-';
+                        if (player) {
+                            player.pauseVideo();
+                            isPlaying = false;
+                            playBtn.textContent = '▶';
+                        }
+                    }
+                } else {
+                    showToast('❌ Gagal hapus: ' + (json.error || 'Unknown error'), 'error');
+                }
             } catch (err) {
                 console.error('Delete error:', err);
-                alert('❌ Gagal menghapus lagu.');
+                showToast('❌ Gagal menghapus lagu. Coba lagi.', 'error');
             }
         }
 
@@ -1192,6 +1316,7 @@
             switch (e.key) {
                 case ' ':
                 case 'Spacebar':
+                case 'Space':
                     e.preventDefault();
                     togglePlay();
                     break;
@@ -1227,7 +1352,7 @@
         progressBar.addEventListener('click', (e) => {
             if (!player) return;
             const rect = progressBar.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width;
+            const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
             const duration = player.getDuration();
             if (duration > 0) {
                 isSeeking = true;
@@ -1245,11 +1370,14 @@
         // ============================================
         // 10. INIT
         // ============================================
+        console.log('🎵 Music Tracker starting...');
+        console.log('API URL:', https://script.google.com/macros/s/AKfycbzuoJmyaAyOnsEGk83zMiNCH1cgo1TcxXNOXlFrTDBVdKttPW4UjYKAMnzZc8ALbAzcCg/exec);
+
         loadYouTubeAPI();
         fetchTracks();
 
-        // Refresh tiap 60 detik (sinkronisasi data)
-        setInterval(fetchTracks, 60000);
+        // Refresh tiap 30 detik (sinkronisasi data)
+        setInterval(fetchTracks, 30000);
 
         console.log('🎵 Music Tracker siap!');
     </script>
