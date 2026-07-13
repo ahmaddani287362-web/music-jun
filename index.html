@@ -788,11 +788,12 @@
         // ============================================
         let toastTimeout;
 
-        function showToast(message, type = 'success') {
+        function showToast(message, type) {
+            if (typeof type === 'undefined') type = 'success';
             clearTimeout(toastTimeout);
             toast.textContent = message;
             toast.className = 'toast show ' + type;
-            toastTimeout = setTimeout(() => {
+            toastTimeout = setTimeout(function() {
                 toast.classList.remove('show');
             }, 3000);
         }
@@ -803,18 +804,18 @@
         async function fetchTracks() {
             showSkeletons();
             try {
-                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                var res = await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'GET',
                     headers: {
-                        'Accept': 'application/json',
-                    },
+                        'Accept': 'application/json'
+                    }
                 });
 
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    throw new Error('HTTP ' + res.status + ': ' + res.statusText);
                 }
 
-                const json = await res.json();
+                var json = await res.json();
                 console.log('Response dari server:', json);
 
                 if (json.success) {
@@ -840,64 +841,81 @@
         // 2. RENDER
         // ============================================
         function renderTracks() {
-            const filtered = tracks.filter(t =>
-                (t.Title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (t.Artist || '').toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            var filtered = tracks.filter(function(t) {
+                return (t.Title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (t.Artist || '').toLowerCase().includes(searchQuery.toLowerCase());
+            });
 
             trackCount.textContent = filtered.length + ' lagu';
 
             if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">
-                        <p style="font-size:40px;">🎵</p>
-                        <p style="font-size:18px;margin-top:12px;">${searchQuery ? 'Tidak ada hasil untuk "' + searchQuery + '"' : 'Belum ada lagu. Yuk tambah!'}</p>
-                        <p style="font-size:14px;margin-top:4px;">${searchQuery ? 'Coba kata kunci lain' : 'Klik tombol Add Song di sidebar'}</p>
-                    </div>
-                `;
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">' +
+                    '<p style="font-size:40px;">🎵</p>' +
+                    '<p style="font-size:18px;margin-top:12px;">' + (searchQuery ? 'Tidak ada hasil untuk "' + searchQuery +
+                        '"' : 'Belum ada lagu. Yuk tambah!') + '</p>' +
+                    '<p style="font-size:14px;margin-top:4px;">' + (searchQuery ? 'Coba kata kunci lain' :
+                        'Klik tombol Add Song di sidebar') + '</p>' +
+                    '</div>';
                 return;
             }
 
-            grid.innerHTML = filtered.map(t => `
-                <div class="music-card" data-id="${t.ID}" data-youtube="${t.YoutubeUrl}">
-                    <img class="card-cover" src="${t.CoverUrl || 'https://via.placeholder.com/180x180/333/555?text=No+Cover'}" 
-                         alt="${t.Title}" loading="lazy" 
-                         onerror="this.src='https://via.placeholder.com/180x180/333/555?text=No+Cover'" />
-                    <button class="delete-btn" data-id="${t.ID}" title="Hapus lagu">🗑️</button>
-                    <div class="card-title">${t.Title || 'Untitled'}</div>
-                    <div class="card-artist">${t.Artist || 'Unknown Artist'}</div>
-                </div>
-            `).join('');
+            var html = '';
+            for (var i = 0; i < filtered.length; i++) {
+                var t = filtered[i];
+                var coverUrl = t.CoverUrl || 'https://via.placeholder.com/180x180/333/555?text=No+Cover';
+                var title = t.Title || 'Untitled';
+                var artist = t.Artist || 'Unknown Artist';
+                html += '<div class="music-card" data-id="' + t.ID + '" data-youtube="' + t.YoutubeUrl + '">' +
+                    '<img class="card-cover" src="' + coverUrl + '" alt="' + title + '" loading="lazy" ' +
+                    'onerror="this.src=\'https://via.placeholder.com/180x180/333/555?text=No+Cover\'" />' +
+                    '<button class="delete-btn" data-id="' + t.ID + '" title="Hapus lagu">🗑️</button>' +
+                    '<div class="card-title">' + title + '</div>' +
+                    '<div class="card-artist">' + artist + '</div>' +
+                    '</div>';
+            }
+            grid.innerHTML = html;
 
             // Event: klik kartu = play
-            document.querySelectorAll('.music-card').forEach(el => {
-                el.addEventListener('click', (e) => {
+            var cards = document.querySelectorAll('.music-card');
+            for (var j = 0; j < cards.length; j++) {
+                var el = cards[j];
+                el.addEventListener('click', function(e) {
                     if (e.target.closest('.delete-btn')) return;
-                    const id = el.dataset.id;
-                    const track = tracks.find(t => t.ID === id);
+                    var id = this.dataset.id;
+                    var track = null;
+                    for (var k = 0; k < tracks.length; k++) {
+                        if (tracks[k].ID === id) {
+                            track = tracks[k];
+                            break;
+                        }
+                    }
                     if (track) playTrack(track);
                 });
-            });
+            }
 
             // Event: tombol hapus
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
+            var deleteBtns = document.querySelectorAll('.delete-btn');
+            for (var l = 0; l < deleteBtns.length; l++) {
+                var btn = deleteBtns[l];
+                btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const id = btn.dataset.id;
-                    await deleteTrack(id);
+                    var id = this.dataset.id;
+                    deleteTrack(id);
                 });
-            });
+            }
         }
 
         // ----- SKELETON -----
         function showSkeletons() {
-            grid.innerHTML = Array(8).fill(0).map(() => `
-                <div class="skeleton-card">
-                    <div class="skeleton-cover"></div>
-                    <div class="skeleton-title"></div>
-                    <div class="skeleton-artist"></div>
-                </div>
-            `).join('');
+            var html = '';
+            for (var i = 0; i < 8; i++) {
+                html += '<div class="skeleton-card">' +
+                    '<div class="skeleton-cover"></div>' +
+                    '<div class="skeleton-title"></div>' +
+                    '<div class="skeleton-artist"></div>' +
+                    '</div>';
+            }
+            grid.innerHTML = html;
         }
 
         // ============================================
@@ -905,34 +923,33 @@
         // ============================================
         function loadYouTubeAPI() {
             if (document.getElementById('youtube-api-script')) return;
-            const script = document.createElement('script');
+            var script = document.createElement('script');
             script.id = 'youtube-api-script';
             script.src = 'https://www.youtube.com/iframe_api';
             script.async = true;
             document.head.appendChild(script);
         }
 
-        let ytReady = false;
+        var ytReady = false;
 
         function onYouTubeIframeAPIReady() {
             ytReady = true;
             console.log('YouTube API siap!');
         }
 
-        // Untuk global callback dari YouTube API
         window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
         function createPlayer(videoId) {
             if (!ytReady) {
                 console.warn('YouTube API belum siap, mencoba lagi...');
-                setTimeout(() => createPlayer(videoId), 500);
+                setTimeout(function() { createPlayer(videoId); }, 500);
                 return;
             }
             if (player) {
                 player.destroy();
                 player = null;
             }
-            const container = document.getElementById('youtube-player');
+            var container = document.getElementById('youtube-player');
             player = new YT.Player(container, {
                 height: 1,
                 width: 1,
@@ -945,12 +962,12 @@
                     iv_load_policy: 3,
                     modestbranding: 1,
                     rel: 0,
-                    showinfo: 0,
+                    showinfo: 0
                 },
                 events: {
                     onReady: onPlayerReady,
                     onStateChange: onPlayerStateChange,
-                    onError: onPlayerError,
+                    onError: onPlayerError
                 }
             });
         }
@@ -995,7 +1012,7 @@
                 showToast('Link YouTube tidak valid!', 'error');
                 return;
             }
-            const videoId = extractVideoId(track.YoutubeUrl);
+            var videoId = extractVideoId(track.YoutubeUrl);
             if (!videoId) {
                 showToast('Link YouTube tidak valid!', 'error');
                 return;
@@ -1038,40 +1055,40 @@
         function seekForward() {
             if (!player) return;
             try {
-                const current = player.getCurrentTime();
+                var current = player.getCurrentTime();
                 player.seekTo(Math.min(current + 5, player.getDuration()), true);
-            } catch (e) { /* ignore */ }
+            } catch (e) {}
         }
 
         function seekBackward() {
             if (!player) return;
             try {
-                const current = player.getCurrentTime();
+                var current = player.getCurrentTime();
                 player.seekTo(Math.max(current - 5, 0), true);
-            } catch (e) { /* ignore */ }
+            } catch (e) {}
         }
 
         function updateProgressLoop() {
             if (playerInterval) clearInterval(playerInterval);
-            playerInterval = setInterval(() => {
+            playerInterval = setInterval(function() {
                 if (!player || !player.getCurrentTime) return;
                 try {
-                    const current = player.getCurrentTime() || 0;
-                    const duration = player.getDuration() || 0;
-                    const percent = duration > 0 ? (current / duration) * 100 : 0;
+                    var current = player.getCurrentTime() || 0;
+                    var duration = player.getDuration() || 0;
+                    var percent = duration > 0 ? (current / duration) * 100 : 0;
                     if (!isSeeking) {
                         progressFill.style.width = percent + '%';
                     }
                     currentTimeEl.textContent = formatTime(current);
                     totalTimeEl.textContent = formatTime(duration);
-                } catch (e) { /* ignore */ }
+                } catch (e) {}
             }, 200);
         }
 
         function formatTime(seconds) {
             if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '0:00';
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
+            var m = Math.floor(seconds / 60);
+            var s = Math.floor(seconds % 60);
             return m + ':' + (s < 10 ? '0' : '') + s;
         }
 
@@ -1080,20 +1097,18 @@
         // ============================================
         function extractVideoId(url) {
             if (!url) return null;
-            // Pattern untuk berbagai format YouTube
-            const patterns = [
+            var patterns = [
                 /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&?/#]+)/,
                 /youtube\.com\/watch\?.*v=([^&]+)/,
                 /youtu\.be\/([^?]+)/
             ];
-            for (const p of patterns) {
-                const match = url.match(p);
+            for (var i = 0; i < patterns.length; i++) {
+                var match = url.match(patterns[i]);
                 if (match) return match[1];
             }
-            // Coba ambil 11 karakter terakhir sebelum query
-            const clean = url.split('?')[0].split('&')[0].split('#')[0];
-            const parts = clean.split('/');
-            const last = parts[parts.length - 1];
+            var clean = url.split('?')[0].split('&')[0].split('#')[0];
+            var parts = clean.split('/');
+            var last = parts[parts.length - 1];
             if (last && last.length >= 11) {
                 return last.substring(0, 11);
             }
@@ -1103,9 +1118,9 @@
         // ============================================
         // 6. MODAL - AUTOFILL & SUBMIT
         // ============================================
-        let isSubmitting = false;
+        var isSubmitting = false;
 
-        openModalBtn.addEventListener('click', () => {
+        openModalBtn.addEventListener('click', function() {
             modalOverlay.classList.add('open');
             inputYoutube.value = '';
             inputCover.value = '';
@@ -1113,12 +1128,12 @@
             inputArtist.value = '';
             inputYoutube.disabled = false;
             submitModalBtn.disabled = false;
-            setTimeout(() => inputYoutube.focus(), 100);
+            setTimeout(function() { inputYoutube.focus(); }, 100);
         });
 
         cancelModalBtn.addEventListener('click', closeModal);
 
-        modalOverlay.addEventListener('click', (e) => {
+        modalOverlay.addEventListener('click', function(e) {
             if (e.target === modalOverlay) closeModal();
         });
 
@@ -1130,12 +1145,12 @@
         }
 
         // Autofill saat paste atau input
-        let autofillTimeout;
+        var autofillTimeout;
 
         inputYoutube.addEventListener('input', function() {
             clearTimeout(autofillTimeout);
-            const url = this.value.trim();
-            const videoId = extractVideoId(url);
+            var url = this.value.trim();
+            var videoId = extractVideoId(url);
 
             if (!videoId) {
                 inputCover.value = '';
@@ -1144,59 +1159,62 @@
                 return;
             }
 
-            // Set cover
-            inputCover.value = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            inputCover.value = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
 
-            // Fetch title via noembed dengan debounce
-            autofillTimeout = setTimeout(async () => {
-                try {
-                    const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
-                    const data = await res.json();
-                    let title = data.title || '';
-
-                    if (title.includes(' - ')) {
-                        const parts = title.split(' - ');
-                        const artistPart = parts.slice(0, -1).join(' - ').trim();
-                        const titlePart = parts[parts.length - 1].trim();
-                        inputArtist.value = artistPart || 'Unknown Artist';
-                        inputTitle.value = titlePart || 'Untitled';
-                    } else {
-                        inputTitle.value = title || 'Untitled';
+            autofillTimeout = setTimeout(function() {
+                var fetchUrl = 'https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId;
+                fetch(fetchUrl)
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        var title = data.title || '';
+                        if (title.includes(' - ')) {
+                            var parts = title.split(' - ');
+                            var artistPart = parts.slice(0, -1).join(' - ').trim();
+                            var titlePart = parts[parts.length - 1].trim();
+                            inputArtist.value = artistPart || 'Unknown Artist';
+                            inputTitle.value = titlePart || 'Untitled';
+                        } else {
+                            inputTitle.value = title || 'Untitled';
+                            inputArtist.value = 'Unknown Artist';
+                        }
+                    })
+                    .catch(function(err) {
+                        console.warn('Gagal fetch title:', err);
+                        inputTitle.value = 'Untitled';
                         inputArtist.value = 'Unknown Artist';
-                    }
-                } catch (err) {
-                    console.warn('Gagal fetch title:', err);
-                    inputTitle.value = 'Untitled';
-                    inputArtist.value = 'Unknown Artist';
-                }
+                    });
             }, 500);
         });
 
         // Submit
-        submitModalBtn.addEventListener('click', async () => {
+        submitModalBtn.addEventListener('click', async function() {
             if (isSubmitting) return;
 
-            const youtubeUrl = inputYoutube.value.trim();
-            const coverUrl = inputCover.value.trim();
-            const title = inputTitle.value.trim() || 'Untitled';
-            const artist = inputArtist.value.trim() || 'Unknown Artist';
+            var youtubeUrl = inputYoutube.value.trim();
+            var coverUrl = inputCover.value.trim();
+            var title = inputTitle.value.trim() || 'Untitled';
+            var artist = inputArtist.value.trim() || 'Unknown Artist';
 
             if (!youtubeUrl) {
                 showToast('Masukkan link YouTube terlebih dahulu!', 'error');
                 return;
             }
 
-            const videoId = extractVideoId(youtubeUrl);
+            var videoId = extractVideoId(youtubeUrl);
             if (!videoId) {
                 showToast('Link YouTube tidak valid!', 'error');
                 return;
             }
 
             // Cek duplikasi
-            const exists = tracks.some(t => {
-                const existingId = extractVideoId(t.YoutubeUrl);
-                return existingId === videoId;
-            });
+            var exists = false;
+            for (var m = 0; m < tracks.length; m++) {
+                var existingId = extractVideoId(tracks[m].YoutubeUrl);
+                if (existingId === videoId) {
+                    exists = true;
+                    break;
+                }
+            }
             if (exists) {
                 showToast('⚠️ Lagu ini sudah ada di library lo!', 'error');
                 return;
@@ -1207,7 +1225,7 @@
             submitModalBtn.textContent = 'Menyimpan...';
 
             try {
-                const payload = {
+                var payload = {
                     action: 'add',
                     data: {
                         title: title,
@@ -1217,20 +1235,20 @@
                     }
                 };
 
-                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                var res = await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify(payload)
                 });
 
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    throw new Error('HTTP ' + res.status + ': ' + res.statusText);
                 }
 
-                const json = await res.json();
+                var json = await res.json();
                 console.log('Add response:', json);
 
                 if (json.success) {
@@ -1257,34 +1275,38 @@
             if (!confirm('Yakin ingin menghapus lagu ini?')) return;
 
             try {
-                const payload = {
+                var payload = {
                     action: 'delete',
                     id: id
                 };
 
-                const res = await fetch(GOOGLE_SHEET_API_URL, {
+                var res = await fetch(GOOGLE_SHEET_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify(payload)
                 });
 
                 if (!res.ok) {
-                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    throw new Error('HTTP ' + res.status + ': ' + res.statusText);
                 }
 
-                const json = await res.json();
+                var json = await res.json();
                 console.log('Delete response:', json);
 
                 if (json.success) {
                     showToast('🗑️ Lagu berhasil dihapus', 'success');
-                    // Hapus dari state lokal
-                    tracks = tracks.filter(t => t.ID !== id);
+                    var newTracks = [];
+                    for (var n = 0; n < tracks.length; n++) {
+                        if (tracks[n].ID !== id) {
+                            newTracks.push(tracks[n]);
+                        }
+                    }
+                    tracks = newTracks;
                     renderTracks();
 
-                    // Jika lagu yang sedang diputar dihapus
                     if (currentTrack && currentTrack.ID === id) {
                         currentTrack = null;
                         playerCover.src = '';
@@ -1308,9 +1330,8 @@
         // ============================================
         // 8. KEYBOARD SHORTCUTS
         // ============================================
-        document.addEventListener('keydown', (e) => {
-            // Ignore jika sedang mengetik di input
-            const tag = e.target.tagName;
+        document.addEventListener('keydown', function(e) {
+            var tag = e.target.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
             switch (e.key) {
@@ -1334,35 +1355,29 @@
         // ============================================
         // 9. EVENT LISTENERS
         // ============================================
-        // Play button
         playBtn.addEventListener('click', togglePlay);
-
-        // Prev / Next (5s)
         prevBtn.addEventListener('click', seekBackward);
         nextBtn.addEventListener('click', seekForward);
 
-        // Volume
-        volumeControl.addEventListener('input', () => {
+        volumeControl.addEventListener('input', function() {
             if (player) {
                 player.setVolume(volumeControl.value * 100);
             }
         });
 
-        // Progress bar click
-        progressBar.addEventListener('click', (e) => {
+        progressBar.addEventListener('click', function(e) {
             if (!player) return;
-            const rect = progressBar.getBoundingClientRect();
-            const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            const duration = player.getDuration();
+            var rect = progressBar.getBoundingClientRect();
+            var x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+            var duration = player.getDuration();
             if (duration > 0) {
                 isSeeking = true;
                 player.seekTo(x * duration, true);
-                setTimeout(() => { isSeeking = false; }, 300);
+                setTimeout(function() { isSeeking = false; }, 300);
             }
         });
 
-        // Search
-        searchInput.addEventListener('input', () => {
+        searchInput.addEventListener('input', function() {
             searchQuery = searchInput.value.trim();
             renderTracks();
         });
@@ -1371,12 +1386,11 @@
         // 10. INIT
         // ============================================
         console.log('🎵 Music Tracker starting...');
-        console.log('API URL:', https://script.google.com/macros/s/AKfycbzuoJmyaAyOnsEGk83zMiNCH1cgo1TcxXNOXlFrTDBVdKttPW4UjYKAMnzZc8ALbAzcCg/exec);
+        console.log('API URL:', GOOGLE_SHEET_API_URL);
 
         loadYouTubeAPI();
         fetchTracks();
 
-        // Refresh tiap 30 detik (sinkronisasi data)
         setInterval(fetchTracks, 30000);
 
         console.log('🎵 Music Tracker siap!');
