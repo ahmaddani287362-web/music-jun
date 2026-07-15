@@ -725,7 +725,7 @@
         // ============================================
         // KONFIGURASI - GANTI DENGAN URL APPS SCRIPT ANDA
         // ============================================
-        var GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbzk05CpuqXnFyOkIkpFpkYghv0w_GI8TdjnueyLiPLZZ_h2EcGcsfXHZO4BbUqwDSFM2A/exec';
+        var GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycby04yF6vl4LyynSCCLAsqDnhJh4EdKGYdIHpS5Pjx--Z7HR7Xu0KP4K44aA7tQ9_4XIpA/exec';
         // ============================================
 
         // ----- STATE -----
@@ -780,77 +780,77 @@
         }
 
         // ============================================
-        // 1. FETCH DATA - Dengan Fallback Proxy
+        // 1. FETCH DATA - MENGGUNAKAN SCRIPT TAG (JSONP)
         // ============================================
-        async function fetchTracks() {
+        function fetchTracks() {
             if (isLoading) return;
             isLoading = true;
             showSkeletons();
 
-            // Daftar proxy CORS gratis
-            var proxies = [
-                'https://api.allorigins.win/raw?url=',
-                'https://corsproxy.io/?',
-                'https://api.codetabs.com/v1/proxy?quest='
-            ];
+            // Buat callback dengan nama unik
+            var callbackName = 'jsonpCallback_' + Date.now();
 
-            var lastError = null;
-
-            for (var p = 0; p < proxies.length; p++) {
+            // Hapus callback lama jika ada
+            window[callbackName] = function(data) {
                 try {
-                    var proxyUrl = proxies[p];
-                    var targetUrl = GOOGLE_SHEET_API_URL;
-                    var fullUrl = proxyUrl + encodeURIComponent(targetUrl);
-
-                    console.log('Mencoba proxy:', proxyUrl);
-
-                    var controller = new AbortController();
-                    var timeoutId = setTimeout(function() {
-                        controller.abort();
-                    }, 10000);
-
-                    var res = await fetch(fullUrl, {
-                        method: 'GET',
-                        signal: controller.signal,
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    clearTimeout(timeoutId);
-
-                    if (!res.ok) {
-                        throw new Error('HTTP ' + res.status + ': ' + res.statusText);
-                    }
-
-                    var json = await res.json();
-                    console.log('Response dari server:', json);
-
-                    if (json.success) {
-                        tracks = json.data || [];
+                    console.log('Response dari server:', data);
+                    if (data.success) {
+                        tracks = data.data || [];
                         renderTracks();
                         if (tracks.length === 0) {
                             showToast('Library kosong, tambahkan lagu pertama!', 'success');
                         }
-                        isLoading = false;
-                        return;
                     } else {
-                        throw new Error(json.error || 'Gagal mengambil data');
+                        showToast('Error: ' + (data.error || 'Gagal mengambil data'), 'error');
+                        tracks = [];
+                        renderTracks();
                     }
-
                 } catch (err) {
-                    console.warn('Proxy ' + p + ' gagal:', err.message);
-                    lastError = err;
-                    // Lanjut ke proxy berikutnya
+                    console.error('Parse error:', err);
+                    showToast('Gagal memproses data', 'error');
+                    tracks = [];
+                    renderTracks();
                 }
-            }
+                isLoading = false;
+                // Cleanup
+                delete window[callbackName];
+                var script = document.getElementById('jsonp_script');
+                if (script) script.remove();
+            };
 
-            // Semua proxy gagal
-            console.error('Semua proxy gagal:', lastError);
-            showToast('Gagal mengambil data. Klik Refresh untuk mencoba lagi.', 'error');
-            tracks = [];
-            renderTracks();
-            isLoading = false;
+            // Buat script tag dengan callback
+            var url = GOOGLE_SHEET_API_URL + '?callback=' + callbackName;
+            var script = document.createElement('script');
+            script.id = 'jsonp_script';
+            script.src = url;
+
+            // Timeout handler
+            var timeoutId = setTimeout(function() {
+                isLoading = false;
+                showToast('Request timeout. Coba Refresh.', 'error');
+                tracks = [];
+                renderTracks();
+                delete window[callbackName];
+                var scriptEl = document.getElementById('jsonp_script');
+                if (scriptEl) scriptEl.remove();
+            }, 15000);
+
+            script.onload = function() {
+                clearTimeout(timeoutId);
+            };
+
+            script.onerror = function() {
+                clearTimeout(timeoutId);
+                isLoading = false;
+                showToast('Gagal mengambil data. Coba Refresh.', 'error');
+                tracks = [];
+                renderTracks();
+                delete window[callbackName];
+                var scriptEl = document.getElementById('jsonp_script');
+                if (scriptEl) scriptEl.remove();
+            };
+
+            document.head.appendChild(script);
         }
 
         // ============================================
@@ -1256,7 +1256,6 @@
                 showToast('✅ Lagu berhasil ditambahkan!', 'success');
                 closeModal();
 
-                // Refresh data setelah 1.5 detik
                 setTimeout(function() {
                     fetchTracks();
                 }, 1500);
@@ -1294,7 +1293,6 @@
 
                 showToast('🗑️ Lagu berhasil dihapus', 'success');
 
-                // Hapus dari state lokal
                 var newTracks = [];
                 for (var n = 0; n < tracks.length; n++) {
                     if (tracks[n].ID !== id) {
@@ -1316,7 +1314,6 @@
                     }
                 }
 
-                // Refresh ulang dari server
                 setTimeout(function() {
                     fetchTracks();
                 }, 1000);
@@ -1394,12 +1391,10 @@
 
         loadYouTubeAPI();
 
-        // Coba fetch setelah API siap
         setTimeout(function() {
             fetchTracks();
         }, 500);
 
-        // Refresh setiap 30 detik
         setInterval(function() {
             if (!isLoading) {
                 fetchTracks();
