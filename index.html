@@ -624,7 +624,7 @@
         // ========================================
 
         // 1. URL Apps Script (dari deploy lo)
-        var API_URL = 'https://script.google.com/macros/s/AKfycby04yF6vl4LyynSCCLAsqDnhJh4EdKGYdIHpS5Pjx--Z7HR7Xu0KP4K44aA7tQ9_4XIpA/exec';
+        var API_URL = 'https://script.google.com/macros/s/AKfycbzk05CpuqXnFyOkIkpFpkYghv0w_GI8TdjnueyLiPLZZ_h2EcGcsfXHZO4BbUqwDSFM2A/exec';
 
         // 2. Sheet ID (dari URL Google Sheet lo)
         var SHEET_ID = '1BAUrAY2caeycLY2Xu6i7punb3xonYEwnqCA5I1po-ok'; // <--- GANTI INI!
@@ -675,7 +675,7 @@
         }
 
         // ============================================
-        // FETCH DATA PAKE Google Sheets API (NO CORS!)
+        // FETCH DATA - PAKE PUBLISHED SHEET (NO API KEY!)
         // ============================================
         async function fetchTracks() {
             if (isLoading) return;
@@ -683,28 +683,40 @@
             showSkeletons();
 
             try {
-                // Pake Google Sheets API langsung - NO CORS!
-                var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID +
-                    '/values/Music?key=AIzaSyD0x3Z7bHtLtHfAq_1mZ8xEfQ3n4W5oR7M';
+                // Pake Google Sheets published CSV - NO API KEY!
+                var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json';
 
                 var res = await fetch(url);
 
                 if (!res.ok) {
-                    // Kalo API Key nya salah, coba pake proxy
-                    throw new Error('API Key mungkin salah, coba pake method cadangan...');
+                    throw new Error('Gagal fetch: ' + res.status);
                 }
 
-                var json = await res.json();
-
-                if (json.values && json.values.length > 1) {
-                    var headers = json.values[0];
-                    var data = json.values.slice(1);
-                    tracks = data.map(function(row) {
+                var text = await res.text();
+                
+                // Parse JSONP response
+                var jsonString = text.substring(text.indexOf('(') + 1, text.lastIndexOf(')'));
+                var json = JSON.parse(jsonString);
+                
+                var rows = json.table.rows;
+                var cols = json.table.cols;
+                
+                if (rows && rows.length > 0) {
+                    var headers = cols.map(function(c) { return c.label; });
+                    
+                    tracks = rows.map(function(row) {
                         var item = {};
-                        headers.forEach(function(h, i) { item[h] = row[i] || ''; });
+                        var cells = row.c || [];
+                        headers.forEach(function(h, i) {
+                            item[h] = (cells[i] && cells[i].v !== null && cells[i].v !== undefined) ? String(cells[i].v) : '';
+                        });
                         return item;
                     });
+                    
                     renderTracks();
+                    if (tracks.length === 0) {
+                        showToast('Belum ada data', 'success');
+                    }
                 } else {
                     tracks = [];
                     renderTracks();
@@ -712,51 +724,13 @@
                 }
 
             } catch (err) {
-                console.log('Error:', err);
-                // Kalo gagal, coba pake JSONP via Apps Script
-                try {
-                    await fetchTracksViaAppsScript();
-                } catch (e2) {
-                    showToast('Gagal ambil data. Coba refresh.', 'error');
-                    tracks = [];
-                    renderTracks();
-                }
+                console.error('Fetch error:', err);
+                showToast('Gagal ambil data. Coba refresh.', 'error');
+                tracks = [];
+                renderTracks();
             }
 
             isLoading = false;
-        }
-
-        // ============================================
-        // CADANGAN: FETCH VIA APPS SCRIPT (JSONP)
-        // ============================================
-        function fetchTracksViaAppsScript() {
-            return new Promise(function(resolve, reject) {
-                var callbackName = 'cb_' + Date.now();
-                window[callbackName] = function(data) {
-                    if (data.success) {
-                        tracks = data.data || [];
-                        renderTracks();
-                    } else {
-                        tracks = [];
-                        renderTracks();
-                    }
-                    delete window[callbackName];
-                    resolve();
-                };
-
-                var script = document.createElement('script');
-                script.src = API_URL + '?callback=' + callbackName;
-                script.onerror = function() {
-                    delete window[callbackName];
-                    reject(new Error('JSONP failed'));
-                };
-                document.head.appendChild(script);
-
-                setTimeout(function() {
-                    delete window[callbackName];
-                    reject(new Error('Timeout'));
-                }, 10000);
-            });
         }
 
         // ============================================
