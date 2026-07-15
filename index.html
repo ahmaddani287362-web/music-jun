@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Music Tracker</title>
-
-    <!-- ===== CSS ===== -->
+    <title>🎵 Music Tracker</title>
     <style>
-        *,
-        *::before,
-        *::after {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -47,6 +43,7 @@
             padding: 8px 8px 0 8px;
         }
 
+        /* SIDEBAR */
         .sidebar {
             width: 240px;
             min-width: 200px;
@@ -96,11 +93,6 @@
             background: #1ed760;
         }
 
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
         .sidebar-menu-item {
             padding: 10px 14px;
             border-radius: 8px;
@@ -128,6 +120,7 @@
             margin: 4px 0;
         }
 
+        /* MAIN */
         .main {
             flex: 1;
             background: #121212;
@@ -139,9 +132,16 @@
             gap: 20px;
         }
 
+        .top-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .search-bar {
             position: relative;
-            width: 100%;
+            flex: 1;
             max-width: 400px;
         }
         .search-bar input {
@@ -171,6 +171,20 @@
             font-size: 18px;
         }
 
+        .btn-refresh {
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 24px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-refresh:hover {
+            background: #444;
+        }
+
         .grid-header {
             display: flex;
             justify-content: space-between;
@@ -192,6 +206,7 @@
             padding: 4px 0 20px 0;
         }
 
+        /* MUSIC CARD */
         .music-card {
             background: #181818;
             border-radius: 8px;
@@ -263,6 +278,7 @@
             transform: scale(1.1);
         }
 
+        /* SKELETON */
         .skeleton-card {
             background: #181818;
             border-radius: 8px;
@@ -304,6 +320,7 @@
             }
         }
 
+        /* PLAYER */
         .player {
             background: #181818;
             border-top: 1px solid #282828;
@@ -438,6 +455,7 @@
             cursor: pointer;
         }
 
+        /* MODAL */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -545,41 +563,7 @@
             cursor: not-allowed;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .music-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 12px;
-            }
-            .main {
-                padding: 16px;
-            }
-            .player {
-                padding: 8px 12px;
-                flex-wrap: wrap;
-                height: auto;
-                gap: 8px;
-            }
-            .player-info {
-                min-width: 120px;
-            }
-            .player-volume {
-                display: none;
-            }
-        }
-
-        #youtube-player {
-            position: fixed;
-            bottom: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
+        /* TOAST */
         .toast {
             position: fixed;
             bottom: 100px;
@@ -608,25 +592,46 @@
             border-left: 4px solid #1DB954;
         }
 
-        .btn-refresh {
-            background: #333;
-            color: #fff;
-            border: none;
-            border-radius: 24px;
-            padding: 8px 16px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        #youtube-player {
+            position: fixed;
+            bottom: -9999px;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
-        .btn-refresh:hover {
-            background: #444;
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .music-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+            .main {
+                padding: 16px;
+            }
+            .player {
+                padding: 8px 12px;
+                flex-wrap: wrap;
+                height: auto;
+                gap: 8px;
+            }
+            .player-info {
+                min-width: 120px;
+            }
+            .player-volume {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== APP ===== -->
     <div class="app">
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="logo">
                 <span class="icon">🎵</span>
@@ -634,16 +639,15 @@
             </div>
             <button class="sidebar-btn" id="openAddModal">➕ Add Song</button>
             <hr class="sidebar-divider" />
-            <div class="sidebar-menu">
-                <div class="sidebar-menu-item active">🏠 Home</div>
-                <div class="sidebar-menu-item">❤️ Favorites</div>
-                <div class="sidebar-menu-item">📋 Playlists</div>
-            </div>
+            <div class="sidebar-menu-item active">🏠 Home</div>
+            <div class="sidebar-menu-item">❤️ Favorites</div>
+            <div class="sidebar-menu-item">📋 Playlists</div>
         </aside>
 
+        <!-- MAIN -->
         <main class="main">
-            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <div class="search-bar" style="flex:1; max-width:400px;">
+            <div class="top-bar">
+                <div class="search-bar">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchInput" placeholder="Cari lagu..." />
                 </div>
@@ -657,7 +661,7 @@
         </main>
     </div>
 
-    <!-- ===== BOTTOM PLAYER ===== -->
+    <!-- PLAYER -->
     <footer class="player" id="player">
         <div class="player-info">
             <img class="player-cover" id="playerCover" src="" alt="cover" />
@@ -686,10 +690,10 @@
         </div>
     </footer>
 
-    <!-- ===== YOUTUBE IFRAME ===== -->
+    <!-- YOUTUBE IFRAME -->
     <div id="youtube-player"></div>
 
-    <!-- ===== MODAL ===== -->
+    <!-- MODAL -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h2>🎵 Tambah Lagu</h2>
@@ -717,28 +721,33 @@
         </div>
     </div>
 
-    <!-- ===== TOAST ===== -->
+    <!-- TOAST -->
     <div class="toast" id="toast"></div>
 
-    <!-- ===== JAVASCRIPT ===== -->
     <script>
         // ============================================
-        // KONFIGURASI - GANTI DENGAN URL APPS SCRIPT ANDA
+        // KONFIGURASI - GANTI CUMAN INI DOANG!
         // ============================================
-        var GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbxEOSSWuBKnM86n2zfQ3-3egL-0Uxqc0QxAMF-2LGjtFTnBsGhu1n3iWgaOAfVi2XL4/exec';
+        // 1. URL Apps Script (untuk ADD & DELETE)
+        var API_URL = 'https://script.google.com/macros/s/AKfycbxEOSSWuBKnM86n2zfQ3-3egL-0Uxqc0QxAMF-2LGjtFTnBsGhu1n3iWgaOAfVi2XL4/exec';
+
+        // 2. PUBLISHED SHEET ID (dari Publish to web)
+        // Contoh: 2PACX-1vXXXXXX
+        var PUBLISHED_SHEET_ID = '2PACX-1vQdtvNtCdrVeNZxuoRqKi3v-tl7Q92grRg5ahjAeO0A_MYvSOcj-bN2U6sTDlpUf3gPDoW0ix7fKvms'; // <-- GANTI INI!
+
+        // 3. Nama Sheet (default: Music)
+        var SHEET_NAME = 'Music';
         // ============================================
 
-        // ----- STATE -----
         var tracks = [];
         var currentTrack = null;
         var player = null;
         var isPlaying = false;
         var playerInterval = null;
-        var isSeeking = false;
         var searchQuery = '';
         var isLoading = false;
 
-        // ----- DOM REFS -----
+        // DOM REFS
         var grid = document.getElementById('musicGrid');
         var searchInput = document.getElementById('searchInput');
         var trackCount = document.getElementById('trackCount');
@@ -764,93 +773,104 @@
         var inputArtist = document.getElementById('inputArtist');
         var toast = document.getElementById('toast');
 
-        // ============================================
-        // TOAST NOTIFICATION
-        // ============================================
         var toastTimeout;
 
-        function showToast(message, type) {
-            if (typeof type === 'undefined') type = 'success';
+        function showToast(msg, type) {
             clearTimeout(toastTimeout);
-            toast.textContent = message;
-            toast.className = 'toast show ' + type;
-            toastTimeout = setTimeout(function() {
-                toast.classList.remove('show');
-            }, 3000);
+            toast.textContent = msg;
+            toast.className = 'toast show ' + (type || 'success');
+            toastTimeout = setTimeout(function() { toast.classList.remove('show'); }, 3000);
         }
 
         // ============================================
-        // 1. FETCH DATA - MENGGUNAKAN SCRIPT TAG (JSONP)
+        // 1. FETCH DATA - PAKE PUBLISHED SHEET
         // ============================================
-        function fetchTracks() {
+        async function fetchTracks() {
             if (isLoading) return;
             isLoading = true;
             showSkeletons();
 
-            // Buat callback dengan nama unik
-            var callbackName = 'jsonpCallback_' + Date.now();
+            try {
+                // URL published sheet JSON
+                var url = 'https://docs.google.com/spreadsheets/d/e/' +
+                    PUBLISHED_SHEET_ID +
+                    '/pub?output=csv';
 
-            // Hapus callback lama jika ada
-            window[callbackName] = function(data) {
-                try {
-                    console.log('Response dari server:', data);
-                    if (data.success) {
-                        tracks = data.data || [];
-                        renderTracks();
-                        if (tracks.length === 0) {
-                            showToast('Library kosong, tambahkan lagu pertama!', 'success');
-                        }
-                    } else {
-                        showToast('Error: ' + (data.error || 'Gagal mengambil data'), 'error');
-                        tracks = [];
-                        renderTracks();
-                    }
-                } catch (err) {
-                    console.error('Parse error:', err);
-                    showToast('Gagal memproses data', 'error');
+                console.log('Fetching:', url);
+
+                var res = await fetch(url);
+
+                if (!res.ok) {
+                    throw new Error('HTTP ' + res.status);
+                }
+
+                var csvText = await res.text();
+                console.log('CSV length:', csvText.length);
+
+                // Parse CSV
+                var lines = csvText.split('\n').filter(function(line) { return line.trim() !== ''; });
+
+                if (lines.length <= 1) {
                     tracks = [];
                     renderTracks();
+                    showToast('Belum ada data', 'success');
+                    isLoading = false;
+                    return;
                 }
-                isLoading = false;
-                // Cleanup
-                delete window[callbackName];
-                var script = document.getElementById('jsonp_script');
-                if (script) script.remove();
-            };
 
-            // Buat script tag dengan callback
-            var url = GOOGLE_SHEET_API_URL + '?callback=' + callbackName;
-            var script = document.createElement('script');
-            script.id = 'jsonp_script';
-            script.src = url;
+                // Parse header
+                var headers = lines[0].split(',').map(function(h) { return h.replace(/^"|"$/g, '').trim(); });
 
-            // Timeout handler
-            var timeoutId = setTimeout(function() {
-                isLoading = false;
-                showToast('Request timeout. Coba Refresh.', 'error');
+                // Parse data
+                tracks = [];
+                for (var i = 1; i < lines.length; i++) {
+                    var values = parseCSVLine(lines[i]);
+                    var item = {};
+                    headers.forEach(function(h, idx) {
+                        item[h] = (values[idx] || '').replace(/^"|"$/g, '').trim();
+                    });
+                    tracks.push(item);
+                }
+
+                console.log('Tracks loaded:', tracks.length);
+                renderTracks();
+
+                if (tracks.length === 0) {
+                    showToast('Belum ada data', 'success');
+                }
+
+            } catch (err) {
+                console.error('Fetch error:', err);
+                showToast('Gagal ambil data: ' + err.message, 'error');
                 tracks = [];
                 renderTracks();
-                delete window[callbackName];
-                var scriptEl = document.getElementById('jsonp_script');
-                if (scriptEl) scriptEl.remove();
-            }, 15000);
+            }
 
-            script.onload = function() {
-                clearTimeout(timeoutId);
-            };
+            isLoading = false;
+        }
 
-            script.onerror = function() {
-                clearTimeout(timeoutId);
-                isLoading = false;
-                showToast('Gagal mengambil data. Coba Refresh.', 'error');
-                tracks = [];
-                renderTracks();
-                delete window[callbackName];
-                var scriptEl = document.getElementById('jsonp_script');
-                if (scriptEl) scriptEl.remove();
-            };
+        // ============================================
+        // PARSE CSV LINE (handle quoted fields)
+        // ============================================
+        function parseCSVLine(line) {
+            var result = [];
+            var current = '';
+            var inQuotes = false;
 
-            document.head.appendChild(script);
+            for (var i = 0; i < line.length; i++) {
+                var char = line[i];
+
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current);
+            return result;
         }
 
         // ============================================
@@ -865,12 +885,15 @@
             trackCount.textContent = filtered.length + ' lagu';
 
             if (filtered.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">' +
+                grid.innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">' +
                     '<p style="font-size:40px;">🎵</p>' +
-                    '<p style="font-size:18px;margin-top:12px;">' + (searchQuery ? 'Tidak ada hasil untuk "' + searchQuery +
-                        '"' : 'Belum ada lagu. Yuk tambah!') + '</p>' +
-                    '<p style="font-size:14px;margin-top:4px;">' + (searchQuery ? 'Coba kata kunci lain' :
-                        'Klik tombol Add Song di sidebar') + '</p>' +
+                    '<p style="font-size:18px;margin-top:12px;">' +
+                    (searchQuery ? 'Tidak ada hasil untuk "' + searchQuery + '"' : 'Belum ada lagu. Yuk tambah!') +
+                    '</p>' +
+                    '<p style="font-size:14px;margin-top:4px;">' +
+                    (searchQuery ? 'Coba kata kunci lain' : 'Klik tombol Add Song di sidebar') +
+                    '</p>' +
                     '</div>';
                 return;
             }
@@ -891,6 +914,7 @@
             }
             grid.innerHTML = html;
 
+            // Event klik kartu
             var cards = document.querySelectorAll('.music-card');
             for (var j = 0; j < cards.length; j++) {
                 var el = cards[j];
@@ -908,6 +932,7 @@
                 });
             }
 
+            // Event hapus
             var deleteBtns = document.querySelectorAll('.delete-btn');
             for (var l = 0; l < deleteBtns.length; l++) {
                 var btn = deleteBtns[l];
@@ -1097,6 +1122,8 @@
             }, 200);
         }
 
+        var isSeeking = false;
+
         function formatTime(seconds) {
             if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '0:00';
             var m = Math.floor(seconds / 60);
@@ -1131,6 +1158,7 @@
         // 6. MODAL - AUTOFILL & SUBMIT
         // ============================================
         var isSubmitting = false;
+        var autofillTimeout;
 
         openModalBtn.addEventListener('click', function() {
             modalOverlay.classList.add('open');
@@ -1155,8 +1183,6 @@
             submitModalBtn.disabled = false;
             submitModalBtn.textContent = 'Tambah';
         }
-
-        var autofillTimeout;
 
         inputYoutube.addEventListener('input', function() {
             clearTimeout(autofillTimeout);
@@ -1216,6 +1242,7 @@
                 return;
             }
 
+            // Cek duplikasi
             var exists = false;
             for (var m = 0; m < tracks.length; m++) {
                 var existingId = extractVideoId(tracks[m].YoutubeUrl);
@@ -1244,7 +1271,7 @@
                     }
                 };
 
-                await fetch(GOOGLE_SHEET_API_URL, {
+                await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
@@ -1258,7 +1285,7 @@
 
                 setTimeout(function() {
                     fetchTracks();
-                }, 1500);
+                }, 2000);
 
             } catch (err) {
                 console.error('Submit error:', err);
@@ -1282,7 +1309,7 @@
                     id: id
                 };
 
-                await fetch(GOOGLE_SHEET_API_URL, {
+                await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
@@ -1316,7 +1343,7 @@
 
                 setTimeout(function() {
                     fetchTracks();
-                }, 1000);
+                }, 2000);
 
             } catch (err) {
                 console.error('Delete error:', err);
@@ -1387,7 +1414,8 @@
         // 10. INIT
         // ============================================
         console.log('🎵 Music Tracker starting...');
-        console.log('API URL:', GOOGLE_SHEET_API_URL);
+        console.log('API URL:', API_URL);
+        console.log('Published Sheet ID:', PUBLISHED_SHEET_ID);
 
         loadYouTubeAPI();
 
