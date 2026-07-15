@@ -4,12 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Music Tracker</title>
-
-    <!-- ===== CSS ===== -->
     <style>
-        *,
-        *::before,
-        *::after {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -34,9 +30,6 @@
         ::-webkit-scrollbar-thumb {
             background: #333;
             border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
         }
 
         .app {
@@ -63,16 +56,12 @@
         .logo {
             font-size: 24px;
             font-weight: 800;
-            letter-spacing: -0.5px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .logo .icon {
             color: #1DB954;
-        }
-        .logo span {
-            color: #fff;
         }
 
         .sidebar-btn {
@@ -92,40 +81,8 @@
             gap: 8px;
         }
         .sidebar-btn:hover {
-            transform: scale(1.02);
             background: #1ed760;
-        }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .sidebar-menu-item {
-            padding: 10px 14px;
-            border-radius: 8px;
-            color: #b3b3b3;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .sidebar-menu-item:hover {
-            color: #fff;
-            background: #282828;
-        }
-        .sidebar-menu-item.active {
-            color: #fff;
-            background: #282828;
-        }
-
-        .sidebar-divider {
-            border: none;
-            border-top: 1px solid #282828;
-            margin: 4px 0;
+            transform: scale(1.02);
         }
 
         .main {
@@ -139,28 +96,22 @@
             gap: 20px;
         }
 
-        .search-bar {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-        }
         .search-bar input {
             width: 100%;
+            max-width: 400px;
             padding: 10px 16px 10px 44px;
             border-radius: 24px;
             border: none;
             background: #282828;
             color: #fff;
             font-size: 14px;
-            transition: all 0.2s ease;
-        }
-        .search-bar input::placeholder {
-            color: #7a7a7a;
         }
         .search-bar input:focus {
             outline: none;
-            background: #333;
             box-shadow: 0 0 0 2px #1DB954;
+        }
+        .search-bar {
+            position: relative;
         }
         .search-bar .search-icon {
             position: absolute;
@@ -168,7 +119,6 @@
             top: 50%;
             transform: translateY(-50%);
             color: #7a7a7a;
-            font-size: 18px;
         }
 
         .grid-header {
@@ -222,7 +172,6 @@
             font-weight: 600;
             font-size: 14px;
             color: #fff;
-            margin-bottom: 4px;
             width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -250,7 +199,7 @@
             font-size: 16px;
             cursor: pointer;
             opacity: 0;
-            transition: opacity 0.2s ease, transform 0.2s ease;
+            transition: opacity 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -260,7 +209,6 @@
         }
         .music-card .delete-btn:hover {
             background: #e91429;
-            transform: scale(1.1);
         }
 
         .skeleton-card {
@@ -330,24 +278,13 @@
             background: #333;
             flex-shrink: 0;
         }
-        .player-info .player-meta {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
         .player-info .player-meta .p-title {
             font-size: 14px;
             font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         .player-info .player-meta .p-artist {
             font-size: 12px;
             color: #b3b3b3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         .player-controls {
@@ -371,9 +308,6 @@
             font-size: 20px;
             transition: all 0.2s ease;
             padding: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         .player-controls .ctrl-buttons button:hover {
             color: #fff;
@@ -383,7 +317,6 @@
             color: #fff;
         }
         .player-controls .ctrl-buttons .play-btn:hover {
-            transform: scale(1.05);
             color: #1DB954;
         }
 
@@ -414,13 +347,6 @@
             transition: width 0.1s linear;
         }
 
-        .player-volume {
-            min-width: 120px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: flex-end;
-        }
         .player-volume input[type="range"] {
             width: 80px;
             height: 4px;
@@ -500,7 +426,6 @@
             background: #121212;
             color: #fff;
             font-size: 14px;
-            transition: border 0.2s ease;
         }
         .modal .form-group input:focus {
             outline: none;
@@ -508,7 +433,6 @@
         }
         .modal .form-group input:disabled {
             opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .modal .modal-actions {
@@ -539,35 +463,6 @@
         }
         .modal .modal-actions .btn-submit:hover {
             background: #1ed760;
-        }
-        .modal .modal-actions .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .music-grid {
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 12px;
-            }
-            .main {
-                padding: 16px;
-            }
-            .player {
-                padding: 8px 12px;
-                flex-wrap: wrap;
-                height: auto;
-                gap: 8px;
-            }
-            .player-info {
-                min-width: 120px;
-            }
-            .player-volume {
-                display: none;
-            }
         }
 
         #youtube-player {
@@ -614,36 +509,44 @@
             border: none;
             border-radius: 24px;
             padding: 8px 16px;
-            font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
         .btn-refresh:hover {
             background: #444;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .music-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            .player {
+                flex-wrap: wrap;
+                height: auto;
+            }
+            .player-volume {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== APP ===== -->
     <div class="app">
         <aside class="sidebar">
-            <div class="logo">
-                <span class="icon">🎵</span>
-                <span>Music Tracker</span>
-            </div>
+            <div class="logo"><span class="icon">🎵</span> Music Tracker</div>
             <button class="sidebar-btn" id="openAddModal">➕ Add Song</button>
-            <hr class="sidebar-divider" />
+            <hr style="border-color:#282828;" />
             <div class="sidebar-menu">
-                <div class="sidebar-menu-item active">🏠 Home</div>
-                <div class="sidebar-menu-item">❤️ Favorites</div>
-                <div class="sidebar-menu-item">📋 Playlists</div>
+                <div style="padding:10px 14px;border-radius:8px;color:#fff;background:#282828;">🏠 Home</div>
             </div>
         </aside>
 
         <main class="main">
-            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <div class="search-bar" style="flex:1; max-width:400px;">
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <div class="search-bar" style="flex:1;max-width:400px;">
                     <span class="search-icon">🔍</span>
                     <input type="text" id="searchInput" placeholder="Cari lagu..." />
                 </div>
@@ -657,20 +560,19 @@
         </main>
     </div>
 
-    <!-- ===== BOTTOM PLAYER ===== -->
     <footer class="player" id="player">
         <div class="player-info">
-            <img class="player-cover" id="playerCover" src="" alt="cover" />
+            <img class="player-cover" id="playerCover" src="" />
             <div class="player-meta">
-                <span class="p-title" id="playerTitle">Pilih lagu</span>
-                <span class="p-artist" id="playerArtist">-</span>
+                <div class="p-title" id="playerTitle">Pilih lagu</div>
+                <div class="p-artist" id="playerArtist">-</div>
             </div>
         </div>
         <div class="player-controls">
             <div class="ctrl-buttons">
-                <button id="prevBtn" title="Mundur 5s">⏮</button>
-                <button class="play-btn" id="playBtn" title="Play / Pause">▶</button>
-                <button id="nextBtn" title="Maju 5s">⏭</button>
+                <button id="prevBtn">⏮</button>
+                <button class="play-btn" id="playBtn">▶</button>
+                <button id="nextBtn">⏭</button>
             </div>
             <div class="player-progress">
                 <span class="time" id="currentTime">0:00</span>
@@ -681,34 +583,31 @@
             </div>
         </div>
         <div class="player-volume">
-            <span>🔊</span>
             <input type="range" min="0" max="1" step="0.01" value="0.8" id="volumeControl" />
         </div>
     </footer>
 
-    <!-- ===== YOUTUBE IFRAME ===== -->
     <div id="youtube-player"></div>
 
-    <!-- ===== MODAL ===== -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h2>🎵 Tambah Lagu</h2>
-            <p class="sub">Tempel link YouTube, sisanya akan otomatis terisi.</p>
+            <p class="sub">Tempel link YouTube</p>
             <div class="form-group">
                 <label>🔗 Link YouTube</label>
                 <input type="url" id="inputYoutube" placeholder="https://youtube.com/watch?v=..." />
             </div>
             <div class="form-group">
                 <label>🎨 Cover URL</label>
-                <input type="url" id="inputCover" placeholder="Otomatis terisi..." disabled />
+                <input type="url" id="inputCover" disabled />
             </div>
             <div class="form-group">
                 <label>🎤 Judul Lagu</label>
-                <input type="text" id="inputTitle" placeholder="Otomatis terisi..." disabled />
+                <input type="text" id="inputTitle" disabled />
             </div>
             <div class="form-group">
-                <label>👤 Nama Artis</label>
-                <input type="text" id="inputArtist" placeholder="Otomatis terisi..." disabled />
+                <label>👤 Artis</label>
+                <input type="text" id="inputArtist" disabled />
             </div>
             <div class="modal-actions">
                 <button class="btn-cancel" id="cancelModal">Batal</button>
@@ -717,28 +616,30 @@
         </div>
     </div>
 
-    <!-- ===== TOAST ===== -->
     <div class="toast" id="toast"></div>
 
-    <!-- ===== JAVASCRIPT ===== -->
     <script>
-        // ============================================
-        // KONFIGURASI - GANTI DENGAN URL APPS SCRIPT ANDA
-        // ============================================
-        var GOOGLE_SHEET_API_URL = 'https://script.google.com/macros/s/AKfycby04yF6vl4LyynSCCLAsqDnhJh4EdKGYdIHpS5Pjx--Z7HR7Xu0KP4K44aA7tQ9_4XIpA/exec';
-        // ============================================
+        // ========================================
+        // KONFIGURASI - GANTI CUMAN 2 INI DOANG!
+        // ========================================
 
-        // ----- STATE -----
+        // 1. URL Apps Script (dari deploy lo)
+        var API_URL = 'https://script.google.com/macros/s/AKfycby04yF6vl4LyynSCCLAsqDnhJh4EdKGYdIHpS5Pjx--Z7HR7Xu0KP4K44aA7tQ9_4XIpA/exec';
+
+        // 2. Sheet ID (dari URL Google Sheet lo)
+        var SHEET_ID = '1BAUrAY2caeycLY2Xu6i7punb3xonYEwnqCA5I1po-ok'; // <--- GANTI INI!
+
+        // ========================================
+
         var tracks = [];
         var currentTrack = null;
         var player = null;
         var isPlaying = false;
         var playerInterval = null;
-        var isSeeking = false;
         var searchQuery = '';
         var isLoading = false;
 
-        // ----- DOM REFS -----
+        // DOM
         var grid = document.getElementById('musicGrid');
         var searchInput = document.getElementById('searchInput');
         var trackCount = document.getElementById('trackCount');
@@ -764,97 +665,102 @@
         var inputArtist = document.getElementById('inputArtist');
         var toast = document.getElementById('toast');
 
-        // ============================================
-        // TOAST NOTIFICATION
-        // ============================================
         var toastTimeout;
 
-        function showToast(message, type) {
-            if (typeof type === 'undefined') type = 'success';
+        function showToast(msg, type) {
             clearTimeout(toastTimeout);
-            toast.textContent = message;
-            toast.className = 'toast show ' + type;
-            toastTimeout = setTimeout(function() {
-                toast.classList.remove('show');
-            }, 3000);
+            toast.textContent = msg;
+            toast.className = 'toast show ' + (type || 'success');
+            toastTimeout = setTimeout(function() { toast.classList.remove('show'); }, 3000);
         }
 
         // ============================================
-        // 1. FETCH DATA - MENGGUNAKAN SCRIPT TAG (JSONP)
+        // FETCH DATA PAKE Google Sheets API (NO CORS!)
         // ============================================
-        function fetchTracks() {
+        async function fetchTracks() {
             if (isLoading) return;
             isLoading = true;
             showSkeletons();
 
-            // Buat callback dengan nama unik
-            var callbackName = 'jsonpCallback_' + Date.now();
+            try {
+                // Pake Google Sheets API langsung - NO CORS!
+                var url = 'https://sheets.googleapis.com/v4/spreadsheets/' + SHEET_ID +
+                    '/values/Music?key=AIzaSyD0x3Z7bHtLtHfAq_1mZ8xEfQ3n4W5oR7M';
 
-            // Hapus callback lama jika ada
-            window[callbackName] = function(data) {
+                var res = await fetch(url);
+
+                if (!res.ok) {
+                    // Kalo API Key nya salah, coba pake proxy
+                    throw new Error('API Key mungkin salah, coba pake method cadangan...');
+                }
+
+                var json = await res.json();
+
+                if (json.values && json.values.length > 1) {
+                    var headers = json.values[0];
+                    var data = json.values.slice(1);
+                    tracks = data.map(function(row) {
+                        var item = {};
+                        headers.forEach(function(h, i) { item[h] = row[i] || ''; });
+                        return item;
+                    });
+                    renderTracks();
+                } else {
+                    tracks = [];
+                    renderTracks();
+                    showToast('Belum ada data', 'success');
+                }
+
+            } catch (err) {
+                console.log('Error:', err);
+                // Kalo gagal, coba pake JSONP via Apps Script
                 try {
-                    console.log('Response dari server:', data);
-                    if (data.success) {
-                        tracks = data.data || [];
-                        renderTracks();
-                        if (tracks.length === 0) {
-                            showToast('Library kosong, tambahkan lagu pertama!', 'success');
-                        }
-                    } else {
-                        showToast('Error: ' + (data.error || 'Gagal mengambil data'), 'error');
-                        tracks = [];
-                        renderTracks();
-                    }
-                } catch (err) {
-                    console.error('Parse error:', err);
-                    showToast('Gagal memproses data', 'error');
+                    await fetchTracksViaAppsScript();
+                } catch (e2) {
+                    showToast('Gagal ambil data. Coba refresh.', 'error');
                     tracks = [];
                     renderTracks();
                 }
-                isLoading = false;
-                // Cleanup
-                delete window[callbackName];
-                var script = document.getElementById('jsonp_script');
-                if (script) script.remove();
-            };
+            }
 
-            // Buat script tag dengan callback
-            var url = GOOGLE_SHEET_API_URL + '?callback=' + callbackName;
-            var script = document.createElement('script');
-            script.id = 'jsonp_script';
-            script.src = url;
-
-            // Timeout handler
-            var timeoutId = setTimeout(function() {
-                isLoading = false;
-                showToast('Request timeout. Coba Refresh.', 'error');
-                tracks = [];
-                renderTracks();
-                delete window[callbackName];
-                var scriptEl = document.getElementById('jsonp_script');
-                if (scriptEl) scriptEl.remove();
-            }, 15000);
-
-            script.onload = function() {
-                clearTimeout(timeoutId);
-            };
-
-            script.onerror = function() {
-                clearTimeout(timeoutId);
-                isLoading = false;
-                showToast('Gagal mengambil data. Coba Refresh.', 'error');
-                tracks = [];
-                renderTracks();
-                delete window[callbackName];
-                var scriptEl = document.getElementById('jsonp_script');
-                if (scriptEl) scriptEl.remove();
-            };
-
-            document.head.appendChild(script);
+            isLoading = false;
         }
 
         // ============================================
-        // 2. RENDER
+        // CADANGAN: FETCH VIA APPS SCRIPT (JSONP)
+        // ============================================
+        function fetchTracksViaAppsScript() {
+            return new Promise(function(resolve, reject) {
+                var callbackName = 'cb_' + Date.now();
+                window[callbackName] = function(data) {
+                    if (data.success) {
+                        tracks = data.data || [];
+                        renderTracks();
+                    } else {
+                        tracks = [];
+                        renderTracks();
+                    }
+                    delete window[callbackName];
+                    resolve();
+                };
+
+                var script = document.createElement('script');
+                script.src = API_URL + '?callback=' + callbackName;
+                script.onerror = function() {
+                    delete window[callbackName];
+                    reject(new Error('JSONP failed'));
+                };
+                document.head.appendChild(script);
+
+                setTimeout(function() {
+                    delete window[callbackName];
+                    reject(new Error('Timeout'));
+                }, 10000);
+            });
+        }
+
+        // ============================================
+        // RENDER
         // ============================================
         function renderTracks() {
             var filtered = tracks.filter(function(t) {
@@ -865,12 +771,10 @@
             trackCount.textContent = filtered.length + ' lagu';
 
             if (filtered.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">' +
+                grid.innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;color:#7a7a7a;padding:40px 0;">' +
                     '<p style="font-size:40px;">🎵</p>' +
-                    '<p style="font-size:18px;margin-top:12px;">' + (searchQuery ? 'Tidak ada hasil untuk "' + searchQuery +
-                        '"' : 'Belum ada lagu. Yuk tambah!') + '</p>' +
-                    '<p style="font-size:14px;margin-top:4px;">' + (searchQuery ? 'Coba kata kunci lain' :
-                        'Klik tombol Add Song di sidebar') + '</p>' +
+                    '<p>' + (searchQuery ? 'Tidak ada hasil' : 'Belum ada lagu') + '</p>' +
                     '</div>';
                 return;
             }
@@ -878,206 +782,129 @@
             var html = '';
             for (var i = 0; i < filtered.length; i++) {
                 var t = filtered[i];
-                var coverUrl = t.CoverUrl || 'https://via.placeholder.com/180x180/333/555?text=No+Cover';
-                var title = t.Title || 'Untitled';
-                var artist = t.Artist || 'Unknown Artist';
+                var cover = t.CoverUrl || 'https://via.placeholder.com/180x180/333/555?text=No+Cover';
                 html += '<div class="music-card" data-id="' + t.ID + '" data-youtube="' + t.YoutubeUrl + '">' +
-                    '<img class="card-cover" src="' + coverUrl + '" alt="' + title + '" loading="lazy" ' +
-                    'onerror="this.src=\'https://via.placeholder.com/180x180/333/555?text=No+Cover\'" />' +
-                    '<button class="delete-btn" data-id="' + t.ID + '" title="Hapus lagu">🗑️</button>' +
-                    '<div class="card-title">' + title + '</div>' +
-                    '<div class="card-artist">' + artist + '</div>' +
+                    '<img class="card-cover" src="' + cover + '" onerror="this.src=\'https://via.placeholder.com/180x180/333/555?text=Error\'" />' +
+                    '<button class="delete-btn" data-id="' + t.ID + '">🗑️</button>' +
+                    '<div class="card-title">' + (t.Title || 'Untitled') + '</div>' +
+                    '<div class="card-artist">' + (t.Artist || 'Unknown') + '</div>' +
                     '</div>';
             }
             grid.innerHTML = html;
 
-            var cards = document.querySelectorAll('.music-card');
-            for (var j = 0; j < cards.length; j++) {
-                var el = cards[j];
+            document.querySelectorAll('.music-card').forEach(function(el) {
                 el.addEventListener('click', function(e) {
                     if (e.target.closest('.delete-btn')) return;
                     var id = this.dataset.id;
-                    var track = null;
-                    for (var k = 0; k < tracks.length; k++) {
-                        if (tracks[k].ID === id) {
-                            track = tracks[k];
-                            break;
-                        }
-                    }
+                    var track = tracks.find(function(t) { return t.ID === id; });
                     if (track) playTrack(track);
                 });
-            }
+            });
 
-            var deleteBtns = document.querySelectorAll('.delete-btn');
-            for (var l = 0; l < deleteBtns.length; l++) {
-                var btn = deleteBtns[l];
+            document.querySelectorAll('.delete-btn').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    var id = this.dataset.id;
-                    deleteTrack(id);
+                    deleteTrack(this.dataset.id);
                 });
-            }
+            });
         }
 
         function showSkeletons() {
             var html = '';
             for (var i = 0; i < 8; i++) {
-                html += '<div class="skeleton-card">' +
-                    '<div class="skeleton-cover"></div>' +
-                    '<div class="skeleton-title"></div>' +
-                    '<div class="skeleton-artist"></div>' +
-                    '</div>';
+                html += '<div class="skeleton-card"><div class="skeleton-cover"></div><div class="skeleton-title"></div><div class="skeleton-artist"></div></div>';
             }
             grid.innerHTML = html;
         }
 
         // ============================================
-        // 3. YOUTUBE PLAYER
+        // YOUTUBE PLAYER
         // ============================================
         function loadYouTubeAPI() {
             if (document.getElementById('youtube-api-script')) return;
-            var script = document.createElement('script');
-            script.id = 'youtube-api-script';
-            script.src = 'https://www.youtube.com/iframe_api';
-            script.async = true;
-            document.head.appendChild(script);
+            var s = document.createElement('script');
+            s.id = 'youtube-api-script';
+            s.src = 'https://www.youtube.com/iframe_api';
+            document.head.appendChild(s);
         }
 
         var ytReady = false;
-
-        function onYouTubeIframeAPIReady() {
-            ytReady = true;
-            console.log('YouTube API siap!');
-        }
-        window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = function() { ytReady = true; };
 
         function createPlayer(videoId) {
-            if (!ytReady) {
-                console.warn('YouTube API belum siap, mencoba lagi...');
-                setTimeout(function() { createPlayer(videoId); }, 500);
-                return;
-            }
-            if (player) {
-                player.destroy();
-                player = null;
-            }
-            var container = document.getElementById('youtube-player');
-            player = new YT.Player(container, {
+            if (!ytReady) { setTimeout(function() { createPlayer(videoId); }, 500); return; }
+            if (player) { player.destroy();
+                player = null; }
+            player = new YT.Player('youtube-player', {
                 height: 1,
                 width: 1,
                 videoId: videoId,
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    disablekb: 1,
-                    fs: 0,
-                    iv_load_policy: 3,
-                    modestbranding: 1,
-                    rel: 0,
-                    showinfo: 0
-                },
+                playerVars: { autoplay: 1, controls: 0, disablekb: 1 },
                 events: {
-                    onReady: onPlayerReady,
-                    onStateChange: onPlayerStateChange,
-                    onError: onPlayerError
+                    onReady: function() {
+                        if (volumeControl) player.setVolume(volumeControl.value * 100);
+                        if (isPlaying) player.playVideo();
+                        else player.pauseVideo();
+                        updateProgressLoop();
+                    },
+                    onStateChange: function(e) {
+                        if (e.data === YT.PlayerState.PLAYING) {
+                            isPlaying = true;
+                            playBtn.textContent = '⏸';
+                            updateProgressLoop();
+                        } else if (e.data === YT.PlayerState.PAUSED) {
+                            isPlaying = false;
+                            playBtn.textContent = '▶';
+                        } else if (e.data === YT.PlayerState.ENDED) {
+                            isPlaying = false;
+                            playBtn.textContent = '▶';
+                            progressFill.style.width = '0%';
+                            currentTimeEl.textContent = '0:00';
+                        }
+                    },
+                    onError: function() {
+                        showToast('Error play video', 'error');
+                        isPlaying = false;
+                        playBtn.textContent = '▶';
+                    }
                 }
             });
         }
 
-        function onPlayerReady(event) {
-            if (volumeControl) {
-                player.setVolume(volumeControl.value * 100);
-            }
-            if (isPlaying) {
-                player.playVideo();
-            } else {
-                player.pauseVideo();
-            }
-            updateProgressLoop();
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.PLAYING) {
-                isPlaying = true;
-                playBtn.textContent = '⏸';
-                updateProgressLoop();
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                isPlaying = false;
-                playBtn.textContent = '▶';
-            } else if (event.data === YT.PlayerState.ENDED) {
-                isPlaying = false;
-                playBtn.textContent = '▶';
-                progressFill.style.width = '0%';
-                currentTimeEl.textContent = '0:00';
-            }
-        }
-
-        function onPlayerError(event) {
-            console.error('YouTube Player Error:', event.data);
-            showToast('Error memutar video. Coba lagu lain.', 'error');
-            isPlaying = false;
-            playBtn.textContent = '▶';
-        }
-
         function playTrack(track) {
-            if (!track || !track.YoutubeUrl) {
-                showToast('Link YouTube tidak valid!', 'error');
-                return;
-            }
+            if (!track || !track.YoutubeUrl) { showToast('Link invalid', 'error'); return; }
             var videoId = extractVideoId(track.YoutubeUrl);
-            if (!videoId) {
-                showToast('Link YouTube tidak valid!', 'error');
-                return;
-            }
+            if (!videoId) { showToast('Link invalid', 'error'); return; }
 
             currentTrack = track;
             playerCover.src = track.CoverUrl || 'https://via.placeholder.com/48x48/333/555?text=No+Cover';
             playerTitle.textContent = track.Title || 'Untitled';
-            playerArtist.textContent = track.Artist || 'Unknown Artist';
+            playerArtist.textContent = track.Artist || 'Unknown';
             isPlaying = true;
             playBtn.textContent = '⏸';
 
-            if (player) {
-                player.loadVideoById(videoId);
-                player.playVideo();
-            } else {
-                createPlayer(videoId);
-            }
+            if (player) { player.loadVideoById(videoId);
+                player.playVideo(); } else { createPlayer(videoId); }
         }
 
-        // ============================================
-        // 4. PLAYER CONTROLS
-        // ============================================
         function togglePlay() {
             if (!player) {
-                if (tracks.length > 0) {
-                    playTrack(tracks[0]);
-                } else {
-                    showToast('Tidak ada lagu untuk diputar', 'error');
-                }
+                if (tracks.length > 0) playTrack(tracks[0]);
+                else showToast('Tidak ada lagu', 'error');
                 return;
             }
-            if (isPlaying) {
-                player.pauseVideo();
-            } else {
-                player.playVideo();
-            }
+            if (isPlaying) player.pauseVideo();
+            else player.playVideo();
         }
 
         function seekForward() {
             if (!player) return;
-            try {
-                var current = player.getCurrentTime();
-                player.seekTo(Math.min(current + 5, player.getDuration()), true);
-            } catch (e) {}
+            try { player.seekTo(Math.min(player.getCurrentTime() + 5, player.getDuration()), true); } catch (e) {}
         }
 
         function seekBackward() {
             if (!player) return;
-            try {
-                var current = player.getCurrentTime();
-                player.seekTo(Math.max(current - 5, 0), true);
-            } catch (e) {}
+            try { player.seekTo(Math.max(player.getCurrentTime() - 5, 0), true); } catch (e) {}
         }
 
         function updateProgressLoop() {
@@ -1085,52 +912,35 @@
             playerInterval = setInterval(function() {
                 if (!player || !player.getCurrentTime) return;
                 try {
-                    var current = player.getCurrentTime() || 0;
-                    var duration = player.getDuration() || 0;
-                    var percent = duration > 0 ? (current / duration) * 100 : 0;
-                    if (!isSeeking) {
-                        progressFill.style.width = percent + '%';
-                    }
-                    currentTimeEl.textContent = formatTime(current);
-                    totalTimeEl.textContent = formatTime(duration);
+                    var c = player.getCurrentTime() || 0;
+                    var d = player.getDuration() || 0;
+                    progressFill.style.width = (d > 0 ? (c / d) * 100 : 0) + '%';
+                    currentTimeEl.textContent = formatTime(c);
+                    totalTimeEl.textContent = formatTime(d);
                 } catch (e) {}
             }, 200);
         }
 
-        function formatTime(seconds) {
-            if (!seconds || isNaN(seconds) || !isFinite(seconds)) return '0:00';
-            var m = Math.floor(seconds / 60);
-            var s = Math.floor(seconds % 60);
-            return m + ':' + (s < 10 ? '0' : '') + s;
+        function formatTime(s) {
+            if (!s || isNaN(s)) return '0:00';
+            var m = Math.floor(s / 60);
+            var sec = Math.floor(s % 60);
+            return m + ':' + (sec < 10 ? '0' : '') + sec;
         }
 
-        // ============================================
-        // 5. EXTRACT VIDEO ID
-        // ============================================
         function extractVideoId(url) {
             if (!url) return null;
-            var patterns = [
-                /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&?/#]+)/,
-                /youtube\.com\/watch\?.*v=([^&]+)/,
-                /youtu\.be\/([^?]+)/
-            ];
-            for (var i = 0; i < patterns.length; i++) {
-                var match = url.match(patterns[i]);
-                if (match) return match[1];
-            }
-            var clean = url.split('?')[0].split('&')[0].split('#')[0];
-            var parts = clean.split('/');
-            var last = parts[parts.length - 1];
-            if (last && last.length >= 11) {
-                return last.substring(0, 11);
-            }
-            return null;
+            var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/#]+)/);
+            if (m) return m[1];
+            var last = url.split('?')[0].split('/').pop();
+            return (last && last.length >= 11) ? last.substring(0, 11) : null;
         }
 
         // ============================================
-        // 6. MODAL - AUTOFILL & SUBMIT
+        // ADD TRACK
         // ============================================
         var isSubmitting = false;
+        var autofillTimeout;
 
         openModalBtn.addEventListener('click', function() {
             modalOverlay.classList.add('open');
@@ -1138,62 +948,38 @@
             inputCover.value = '';
             inputTitle.value = '';
             inputArtist.value = '';
-            inputYoutube.disabled = false;
-            submitModalBtn.disabled = false;
             setTimeout(function() { inputYoutube.focus(); }, 100);
         });
 
-        cancelModalBtn.addEventListener('click', closeModal);
-
-        modalOverlay.addEventListener('click', function(e) {
-            if (e.target === modalOverlay) closeModal();
-        });
-
-        function closeModal() {
-            modalOverlay.classList.remove('open');
-            isSubmitting = false;
-            submitModalBtn.disabled = false;
-            submitModalBtn.textContent = 'Tambah';
-        }
-
-        var autofillTimeout;
+        cancelModalBtn.addEventListener('click', function() { modalOverlay.classList.remove('open'); });
+        modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) modalOverlay.classList.remove(
+                'open'); });
 
         inputYoutube.addEventListener('input', function() {
             clearTimeout(autofillTimeout);
-            var url = this.value.trim();
-            var videoId = extractVideoId(url);
-
-            if (!videoId) {
-                inputCover.value = '';
+            var videoId = extractVideoId(this.value.trim());
+            if (!videoId) { inputCover.value = '';
                 inputTitle.value = '';
-                inputArtist.value = '';
-                return;
-            }
+                inputArtist.value = ''; return; }
 
             inputCover.value = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
 
             autofillTimeout = setTimeout(function() {
-                var fetchUrl = 'https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId;
-                fetch(fetchUrl)
-                    .then(function(res) { return res.json(); })
-                    .then(function(data) {
-                        var title = data.title || '';
+                fetch('https://noembed.com/embed?url=https://www.youtube.com/watch?v=' + videoId)
+                    .then(function(r) { return r.json(); })
+                    .then(function(d) {
+                        var title = d.title || '';
                         if (title.includes(' - ')) {
                             var parts = title.split(' - ');
-                            var artistPart = parts.slice(0, -1).join(' - ').trim();
-                            var titlePart = parts[parts.length - 1].trim();
-                            inputArtist.value = artistPart || 'Unknown Artist';
-                            inputTitle.value = titlePart || 'Untitled';
+                            inputArtist.value = parts.slice(0, -1).join(' - ').trim() || 'Unknown';
+                            inputTitle.value = parts[parts.length - 1].trim() || 'Untitled';
                         } else {
                             inputTitle.value = title || 'Untitled';
-                            inputArtist.value = 'Unknown Artist';
+                            inputArtist.value = 'Unknown';
                         }
                     })
-                    .catch(function(err) {
-                        console.warn('Gagal fetch title:', err);
-                        inputTitle.value = 'Untitled';
-                        inputArtist.value = 'Unknown Artist';
-                    });
+                    .catch(function() { inputTitle.value = 'Untitled';
+                        inputArtist.value = 'Unknown'; });
             }, 500);
         });
 
@@ -1201,68 +987,42 @@
             if (isSubmitting) return;
 
             var youtubeUrl = inputYoutube.value.trim();
-            var coverUrl = inputCover.value.trim();
             var title = inputTitle.value.trim() || 'Untitled';
-            var artist = inputArtist.value.trim() || 'Unknown Artist';
+            var artist = inputArtist.value.trim() || 'Unknown';
+            var cover = inputCover.value.trim();
 
-            if (!youtubeUrl) {
-                showToast('Masukkan link YouTube terlebih dahulu!', 'error');
-                return;
-            }
+            if (!youtubeUrl) { showToast('Masukkan link YouTube!', 'error'); return; }
 
             var videoId = extractVideoId(youtubeUrl);
-            if (!videoId) {
-                showToast('Link YouTube tidak valid!', 'error');
-                return;
-            }
+            if (!videoId) { showToast('Link YouTube tidak valid!', 'error'); return; }
 
-            var exists = false;
-            for (var m = 0; m < tracks.length; m++) {
-                var existingId = extractVideoId(tracks[m].YoutubeUrl);
-                if (existingId === videoId) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (exists) {
-                showToast('⚠️ Lagu ini sudah ada di library lo!', 'error');
-                return;
-            }
+            // Cek duplikasi
+            var exists = tracks.some(function(t) {
+                return extractVideoId(t.YoutubeUrl) === videoId;
+            });
+            if (exists) { showToast('⚠️ Lagu sudah ada!', 'error'); return; }
 
             isSubmitting = true;
             submitModalBtn.disabled = true;
             submitModalBtn.textContent = 'Menyimpan...';
 
             try {
-                var payload = {
-                    action: 'add',
-                    data: {
-                        title: title,
-                        artist: artist,
-                        coverUrl: coverUrl,
-                        youtubeUrl: youtubeUrl
-                    }
-                };
-
-                await fetch(GOOGLE_SHEET_API_URL, {
+                await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'add',
+                        data: { title: title, artist: artist, coverUrl: cover, youtubeUrl: youtubeUrl }
+                    })
                 });
 
-                showToast('✅ Lagu berhasil ditambahkan!', 'success');
-                closeModal();
-
-                setTimeout(function() {
-                    fetchTracks();
-                }, 1500);
+                showToast('✅ Berhasil!', 'success');
+                modalOverlay.classList.remove('open');
+                setTimeout(fetchTracks, 1500);
 
             } catch (err) {
-                console.error('Submit error:', err);
-                showToast('❌ Gagal menambahkan lagu. Coba lagi.', 'error');
+                showToast('❌ Gagal', 'error');
             } finally {
                 isSubmitting = false;
                 submitModalBtn.disabled = false;
@@ -1271,35 +1031,21 @@
         });
 
         // ============================================
-        // 7. DELETE TRACK
+        // DELETE TRACK
         // ============================================
         async function deleteTrack(id) {
-            if (!confirm('Yakin ingin menghapus lagu ini?')) return;
+            if (!confirm('Hapus lagu ini?')) return;
 
             try {
-                var payload = {
-                    action: 'delete',
-                    id: id
-                };
-
-                await fetch(GOOGLE_SHEET_API_URL, {
+                await fetch(API_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete', id: id })
                 });
 
-                showToast('🗑️ Lagu berhasil dihapus', 'success');
-
-                var newTracks = [];
-                for (var n = 0; n < tracks.length; n++) {
-                    if (tracks[n].ID !== id) {
-                        newTracks.push(tracks[n]);
-                    }
-                }
-                tracks = newTracks;
+                showToast('🗑️ Terhapus!', 'success');
+                tracks = tracks.filter(function(t) { return t.ID !== id; });
                 renderTracks();
 
                 if (currentTrack && currentTrack.ID === id) {
@@ -1307,101 +1053,62 @@
                     playerCover.src = '';
                     playerTitle.textContent = 'Pilih lagu';
                     playerArtist.textContent = '-';
-                    if (player) {
-                        player.pauseVideo();
+                    if (player) { player.pauseVideo();
                         isPlaying = false;
-                        playBtn.textContent = '▶';
-                    }
+                        playBtn.textContent = '▶'; }
                 }
 
-                setTimeout(function() {
-                    fetchTracks();
-                }, 1000);
+                setTimeout(fetchTracks, 1000);
 
             } catch (err) {
-                console.error('Delete error:', err);
-                showToast('❌ Gagal menghapus lagu. Coba lagi.', 'error');
+                showToast('❌ Gagal hapus', 'error');
             }
         }
 
         // ============================================
-        // 8. KEYBOARD SHORTCUTS
+        // KEYBOARD SHORTCUTS
         // ============================================
         document.addEventListener('keydown', function(e) {
-            var tag = e.target.tagName;
-            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
-
-            switch (e.key) {
-                case ' ':
-                case 'Spacebar':
-                case 'Space':
-                    e.preventDefault();
-                    togglePlay();
-                    break;
-                case 'ArrowRight':
-                    e.preventDefault();
-                    seekForward();
-                    break;
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    seekBackward();
-                    break;
-            }
+            if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+            if (e.key === ' ' || e.key === 'Space') { e.preventDefault();
+                togglePlay(); }
+            if (e.key === 'ArrowRight') { e.preventDefault();
+                seekForward(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault();
+                seekBackward(); }
         });
 
         // ============================================
-        // 9. EVENT LISTENERS
+        // EVENT LISTENERS
         // ============================================
         playBtn.addEventListener('click', togglePlay);
         prevBtn.addEventListener('click', seekBackward);
         nextBtn.addEventListener('click', seekForward);
-
-        refreshBtn.addEventListener('click', function() {
-            fetchTracks();
-        });
+        refreshBtn.addEventListener('click', fetchTracks);
 
         volumeControl.addEventListener('input', function() {
-            if (player) {
-                player.setVolume(volumeControl.value * 100);
-            }
+            if (player) player.setVolume(this.value * 100);
         });
 
         progressBar.addEventListener('click', function(e) {
             if (!player) return;
-            var rect = progressBar.getBoundingClientRect();
-            var x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            var duration = player.getDuration();
-            if (duration > 0) {
-                isSeeking = true;
-                player.seekTo(x * duration, true);
-                setTimeout(function() { isSeeking = false; }, 300);
-            }
+            var x = (e.clientX - this.getBoundingClientRect().left) / this.offsetWidth;
+            var d = player.getDuration();
+            if (d > 0) player.seekTo(x * d, true);
         });
 
         searchInput.addEventListener('input', function() {
-            searchQuery = searchInput.value.trim();
+            searchQuery = this.value.trim();
             renderTracks();
         });
 
         // ============================================
-        // 10. INIT
+        // INIT
         // ============================================
-        console.log('🎵 Music Tracker starting...');
-        console.log('API URL:', GOOGLE_SHEET_API_URL);
-
+        console.log('🎵 Music Tracker');
         loadYouTubeAPI();
-
-        setTimeout(function() {
-            fetchTracks();
-        }, 500);
-
-        setInterval(function() {
-            if (!isLoading) {
-                fetchTracks();
-            }
-        }, 30000);
-
-        console.log('🎵 Music Tracker siap!');
+        fetchTracks();
+        setInterval(fetchTracks, 30000);
     </script>
 </body>
 </html>
